@@ -60,7 +60,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [16, 18, 20]
+        node-version: [18, 20]
         vscode-version: [stable, insiders]
         exclude:
           # Reduce matrix size - only test insiders on ubuntu
