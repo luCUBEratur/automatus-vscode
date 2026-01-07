@@ -1,0 +1,331 @@
+
+> automatus@0.1.0 pretest
+> npm run compile && npm run lint
+
+
+> automatus@0.1.0 compile
+> tsc -p ./
+
+
+> automatus@0.1.0 lint
+> eslint src
+
+
+> automatus@0.1.0 test
+> vscode-test
+
+- Resolving version...
+✔ Validated version: 1.107.1
+✔ Found existing install in /Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1
+[90m[main 2026-01-05T21:10:57.763Z][0m update#setState disabled
+[90m[main 2026-01-05T21:10:57.769Z][0m update#ctor - updates are disabled by the environment
+ChatSessionStore: Migrating 0 chat sessions from storage service to file system
+MCP Registry configured: https://api.mcp.github.com
+Loading development extension at /Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus
+Started local extension host with pid 73329.
+Settings Sync: Account status changed from uninitialized to unavailable
+[DefaultAccount] Attempt 1 to get sessions failed: Timed out waiting for authentication provider 'github' to register.
+
+  Automatus Extension Test Suite
+Activating Automatus extension...
+Extension: Creating Phase1Commands instance...
+Extension: Calling registerCommands...
+Phase1Commands: Registering commands...
+Phase1Commands: Registered 5 commands successfully
+Extension: Phase1Commands registration completed
+Automatus extension activated successfully
+    ✔ Extension should activate
+    ✔ Commands should be registered
+    ✔ Configuration should have default values
+    ✔ Safety phases should be properly defined
+    ✔ TypeScript types should be properly exported
+    ✔ Extension should handle missing server gracefully (650ms)
+  Circuit Breaker Functionality Verification
+Command unknownCmd1: 5 unknown errors, 1 circuit breaker errors
+Command unknownCmd2: 5 unknown errors, 1 circuit breaker errors
+Command unknownCmd3: 5 unknown errors, 1 circuit breaker errors
+    ✔ Circuit breaker should track failures by command:errorCode pattern (1928ms)
+    ✔ Circuit breaker should reset on successful command execution (1168ms)
+Circuit breaker test results:
+Total errors: 6
+Circuit breaker open errors: 1
+    ✔ Circuit breaker should distinguish between error types (760ms)
+  SafetyGuard Test Suite
+    Permission Checks
+      ✔ should allow read operations in Phase 1
+[SAFETY] SafetyGuard disposed
+      ✔ should allow Phase 1 command operations
+      ✔ should deny write operations outside allowed directories
+[SAFETY] SafetyGuard disposed
+[SAFETY] Operation 'write_file' not allowed in safety phase 1
+[SAFETY] SafetyGuard disposed
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+[SAFETY] Operation 'advanced' not allowed in safety phase 1
+[SAFETY] SafetyGuard disposed
+[SAFETY] Access to restricted path denied: /.git/config
+[SAFETY] SafetyGuard disposed
+[SAFETY] SafetyGuard disposed
+[SAFETY] SafetyGuard disposed
+[SAFETY] SafetyGuard disposed
+[SAFETY] SafetyGuard disposed
+[SAFETY] SafetyGuard disposed
+      ✔ should deny operations not available in current phase
+      ✔ should deny access to restricted paths
+    Safety Risk Analysis
+      ✔ should identify dangerous patterns in code changes
+      ✔ should detect file system operations
+    Configuration Updates
+      ✔ should update guard configuration when config changes
+    Audit Logging
+      ✔ should log operations to audit trail
+      ✔ should export audit log as JSON
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+      ✔ should limit audit log size
+[SAFETY] SafetyGuard disposed
+    Emergency Stop
+[SAFETY] EMERGENCY STOP ACTIVATED - All AI operations halted
+      ✔ should execute emergency stop without error
+[SAFETY] SafetyGuard disposed
+    Backup Creation
+[SAFETY] Failed to create backup for /test/file.js: Error: No workspace found for backup creation
+[SAFETY] SafetyGuard disposed
+      ✔ should create backup path for enabled backups
+      ✔ should return empty string when backups disabled
+[SAFETY] SafetyGuard disposed
+  SafeAutomatusClient Test Suite
+    Connection Management
+      ✔ should initialize with connection ready state
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1593)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+      ✔ should handle connection failure gracefully
+      ✔ should disconnect properly
+    Phase 1 Operations
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+      ✔ should allow code analysis in Phase 1 (55ms)
+      ✔ should allow code preview generation in Phase 1
+      ✔ should allow code explanation in Phase 1
+    Phase Restrictions
+      ✔ should block Phase 2 operations in Phase 1
+      ✔ should block Phase 3 operations in Phase 1
+    Configuration Updates
+      ✔ should update configuration without error
+      ✔ should enable Phase 2 operations after upgrade
+    File Write Permissions
+      ✔ should check allowed directories for file writes
+      ✔ should provide restriction information in denied permissions
+    Error Handling
+      ✔ should handle WebSocket connection errors
+      ✔ should handle operations when disconnected
+    Request Timeout
+      ✔ should timeout long-running requests
+  ConfigurationManager Test Suite
+    Configuration Loading
+      ✔ should load configuration with default values
+      ✔ should return allowed directories array
+      ✔ should return valid server URL
+    Phase Information
+      ✔ should return correct phase info for all phases
+      ✔ should return current phase info
+      ✔ should validate phase progression rules
+    Configuration Validation
+      ✔ should validate imported configuration structure
+      ✔ should export configuration in correct format
+    Safety Phase Constants
+      ✔ should have all required safety phases defined
+      ✔ should have increasing permissions across phases
+      ✔ should have phase-appropriate capabilities
+    Configuration Events
+      ✔ should fire configuration change events (106ms)
+    Error Handling
+      ✔ should handle invalid phase numbers gracefully
+      ✔ should handle configuration access when VSCode API unavailable
+  TUI-VSCode Communication Flow Integration Tests
+    ✔ Complete TUI handshake and workspace discovery flow (2022ms)
+    ✔ Error handling and recovery in communication flow (1528ms)
+Performance Test Results:
+Commands sent: 20
+Responses received: 20
+Total time: 6146ms
+Average latency: 0ms
+Throughput: 3.254149040026033 commands/sec
+    ✔ Performance under load communication (6151ms)
+    ✔ Connection resilience and reconnection (2057ms)
+  Integration Test Suite
+    End-to-End Integration Tests
+[SAFETY] Operation 'write_file' not allowed in safety phase 1
+      ✔ Complete Phase 1 workflow integration (116ms)
+[SAFETY] SafetyGuard disposed
+[SAFETY] Access to restricted path denied: /.git/config
+[SAFETY] EMERGENCY STOP ACTIVATED - All AI operations halted
+      ✔ Safety enforcement integration
+[SAFETY] SafetyGuard disposed
+      ✔ Offline fallback functionality (147ms)
+[SAFETY] SafetyGuard disposed
+[SAFETY] SafetyGuard disposed
+[SAFETY] SafetyGuard disposed
+      ✔ Resource management and disposal (122ms)
+      ✔ Configuration updates and events
+    Error Handling Integration
+      ✔ Graceful error handling across components
+[SAFETY] SafetyGuard disposed
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1593)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at VA.n (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1748)
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:1312
+Error: Trying to add a disposable to a DisposableStore that has already been disposed of. The added object will be leaked!
+	at LM.add (file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:25:1691)
+	at file:///Users/keinobrown/Scripts/Automatus/automatus-vscode/automatus/.vscode-test/vscode-darwin-arm64-1.107.1/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/workbench/api/node/extensionHostProcess.js:123:2488
+[SAFETY] SafetyGuard disposed
+  Bridge Integration Tests
+    ✔ Bridge server starts and accepts connections (40ms)
+    ✔ Handshake protocol works correctly (65ms)
+    ✔ Workspace request returns project information (69ms)
+    ✔ Command execution works for read-only operations (74ms)
+    ✔ Safety enforcement blocks unauthorized operations (67ms)
+rejected promise not handled within 1 second: AssertionError [ERR_ASSERTION]: Got unwanted rejection: Should handle empty requests gracefully
+Actual message: "Cannot read properties of null (reading 'appendLine')"
+stack trace: AssertionError [ERR_ASSERTION]: Got unwanted rejection: Should handle empty requests gracefully
+Actual message: "Cannot read properties of null (reading 'appendLine')"
+An unknown error occurred. Please consult the log for more details.
+    ✔ Connection state tracking works correctly (111ms)
+    ✔ File modification tracking metadata is present (65ms)
+  Bridge Resilience Tests
+    ✔ Message queue handles connection failures (747ms)
+Error codes received: [
+  'UNKNOWN_COMMAND',
+  'UNKNOWN_COMMAND',
+  'UNKNOWN_COMMAND',
+  'UNKNOWN_COMMAND',
+  'UNKNOWN_COMMAND',
+  'CIRCUIT_BREAKER_OPEN'
+]
+Circuit breaker errors: 1, Unknown command errors: 5
+    ✔ Circuit breaker opens after failures (2806ms)
+    ✔ Health monitoring detects status correctly
+    ✔ Performance metrics collection works (1625ms)
+    ✔ Rate limiting prevents message flooding (2051ms)
+  Bridge Performance Benchmarks
+Latency Benchmark Results:
+Average latency: 103.60ms
+Min latency: 100ms
+Max latency: 109ms
+    ✔ Single command latency benchmark (1553ms)
+Starting high throughput test with 50 commands...
+High Throughput Test Results:
+Commands sent: 50
+Responses received: 50
+Errors received: 0
+Total time: 5084ms
+Throughput: 9.83 commands/sec
+Average latency: 0.00ms
+95th percentile latency: 0.00ms
+Success rate: 100.0%
+Memory increase: 0.77MB
+    ✔ High throughput stress test (5096ms)
+Testing 3 concurrent connections...
+Concurrent Connection Test Results:
+Clients: 3
+Commands per client: 5
+Total commands: 15
+Total responses: 5
+Total errors: 0
+Success rate: 33.3%
+Total time: 4392ms
+Client 0: 5 responses, 0 errors
+Client 1: 0 responses, 0 errors
+Client 2: 0 responses, 0 errors
+    ✔ Concurrent connection handling (4517ms)
+Starting memory stability test...

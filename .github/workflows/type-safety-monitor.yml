@@ -1,0 +1,269 @@
+name: Type Safety Monitor
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/bridge/**'
+      - 'src/workspace/**'
+      - 'src/types/**'
+      - 'src/**/*.ts'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/bridge/**'
+      - 'src/workspace/**'
+      - 'src/types/**'
+      - 'src/**/*.ts'
+
+jobs:
+  type-safety-analysis:
+    name: Type Safety Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    outputs:
+      any-type-count: ${{ steps.count-any.outputs.count }}
+      type-safety-score: ${{ steps.calculate-score.outputs.score }}
+      has-regression: ${{ steps.check-regression.outputs.regression }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit for comparison
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Count any types in critical files
+        id: count-any
+        run: |
+          # Count any types in critical bridge and workspace files
+          ANY_COUNT=$(grep -r ":\s*any\|<any>" src/bridge/ src/workspace/ src/types/ | grep -v test | grep -v "as any" | wc -l || echo 0)
+          echo "count=$ANY_COUNT" >> $GITHUB_OUTPUT
+          echo "Found $ANY_COUNT any types in critical files"
+
+      - name: Analyze type coverage
+        id: analyze-types
+        run: |
+          echo "=== Type Safety Analysis ===" > type-analysis.txt
+          echo "Timestamp: $(date)" >> type-analysis.txt
+          echo "" >> type-analysis.txt
+
+          # Count interfaces and types
+          INTERFACES=$(find src/ -name "*.ts" -exec grep -l "^export interface\|^interface" {} \; | wc -l)
+          TYPE_ALIASES=$(find src/ -name "*.ts" -exec grep -l "^export type\|^type.*=" {} \; | wc -l)
+          UNION_TYPES=$(grep -r " | " src/ --include="*.ts" | grep -v test | wc -l)
+
+          echo "Interface count: $INTERFACES" >> type-analysis.txt
+          echo "Type aliases: $TYPE_ALIASES" >> type-analysis.txt
+          echo "Union types: $UNION_TYPES" >> type-analysis.txt
+          echo "Any types in critical files: ${{ steps.count-any.outputs.count }}" >> type-analysis.txt
+          echo "" >> type-analysis.txt
+
+          # Check for discriminated unions
+          echo "=== Discriminated Union Analysis ===" >> type-analysis.txt
+          if grep -q "type BridgeInternalCommand =" src/bridge/TUIVSCodeBridge.ts; then
+            echo "✅ BridgeInternalCommand discriminated union found" >> type-analysis.txt
+            VARIANTS=$(grep -o "type: '[^']*'" src/bridge/TUIVSCodeBridge.ts | sort -u | wc -l)
+            echo "   Variants: $VARIANTS" >> type-analysis.txt
+          else
+            echo "❌ BridgeInternalCommand discriminated union NOT found" >> type-analysis.txt
+          fi
+
+          # Check Extract usage
+          EXTRACT_USAGE=$(grep -c "Extract<BridgeInternalCommand" src/bridge/TUIVSCodeBridge.ts || echo 0)
+          echo "Extract<> utility usage: $EXTRACT_USAGE methods" >> type-analysis.txt
+
+          cat type-analysis.txt
+
+      - name: Calculate type safety score
+        id: calculate-score
+        run: |
+          # Calculate a type safety score (0-100)
+          ANY_COUNT=${{ steps.count-any.outputs.count }}
+
+          # Base score starts at 100
+          SCORE=100
+
+          # Deduct points for any types (2 points each)
+          SCORE=$((SCORE - (ANY_COUNT * 2)))
+
+          # Add points for discriminated unions
+          if grep -q "type BridgeInternalCommand =" src/bridge/TUIVSCodeBridge.ts; then
+            SCORE=$((SCORE + 10))
+          fi
+
+          # Add points for Extract usage
+          EXTRACT_COUNT=$(grep -c "Extract<BridgeInternalCommand" src/bridge/TUIVSCodeBridge.ts || echo 0)
+          SCORE=$((SCORE + (EXTRACT_COUNT * 2)))
+
+          # Ensure score is between 0-100
+          if [ $SCORE -lt 0 ]; then SCORE=0; fi
+          if [ $SCORE -gt 100 ]; then SCORE=100; fi
+
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "Type Safety Score: $SCORE/100"
+
+      - name: Check for regression
+        id: check-regression
+        if: github.event_name == 'pull_request'
+        run: |
+          # Check previous commit's any type count
+          git checkout HEAD~1 2>/dev/null || git checkout main
+
+          PREV_ANY_COUNT=$(grep -r ":\s*any\|<any>" src/bridge/ src/workspace/ src/types/ 2>/dev/null | grep -v test | grep -v "as any" | wc -l || echo 999)
+
+          git checkout $GITHUB_SHA
+
+          CURRENT_ANY_COUNT=${{ steps.count-any.outputs.count }}
+
+          echo "Previous any count: $PREV_ANY_COUNT"
+          echo "Current any count: $CURRENT_ANY_COUNT"
+
+          if [ $CURRENT_ANY_COUNT -gt $PREV_ANY_COUNT ]; then
+            echo "regression=true" >> $GITHUB_OUTPUT
+            echo "❌ Type safety regression detected!"
+            echo "Any types increased from $PREV_ANY_COUNT to $CURRENT_ANY_COUNT"
+          else
+            echo "regression=false" >> $GITHUB_OUTPUT
+            echo "✅ No type safety regression"
+          fi
+
+      - name: Generate detailed report
+        run: |
+          echo "# Type Safety Report" > type-safety-report.md
+          echo "" >> type-safety-report.md
+          echo "**Generated:** $(date)" >> type-safety-report.md
+          echo "**Commit:** $GITHUB_SHA" >> type-safety-report.md
+          echo "**Branch:** $GITHUB_REF_NAME" >> type-safety-report.md
+          echo "" >> type-safety-report.md
+
+          echo "## Summary" >> type-safety-report.md
+          echo "- **Type Safety Score:** ${{ steps.calculate-score.outputs.score }}/100" >> type-safety-report.md
+          echo "- **Any Types in Critical Files:** ${{ steps.count-any.outputs.count }}" >> type-safety-report.md
+
+          if [ "${{ steps.check-regression.outputs.regression }}" = "true" ]; then
+            echo "- **Regression Status:** ❌ REGRESSION DETECTED" >> type-safety-report.md
+          else
+            echo "- **Regression Status:** ✅ No regression" >> type-safety-report.md
+          fi
+          echo "" >> type-safety-report.md
+
+          echo "## Critical Any Types" >> type-safety-report.md
+          echo '```' >> type-safety-report.md
+          grep -rn ":\s*any\|<any>" src/bridge/ src/workspace/ src/types/ | grep -v test | grep -v "as any" || echo "None found"
+          echo '```' >> type-safety-report.md
+          echo "" >> type-safety-report.md
+
+          echo "## Discriminated Union Status" >> type-safety-report.md
+          if grep -q "type BridgeInternalCommand =" src/bridge/TUIVSCodeBridge.ts; then
+            echo "✅ **BridgeInternalCommand** is implemented as discriminated union" >> type-safety-report.md
+            VARIANTS=$(grep -o "type: '[^']*'" src/bridge/TUIVSCodeBridge.ts | sort -u | wc -l)
+            echo "   - **Variants:** $VARIANTS" >> type-safety-report.md
+
+            EXTRACT_USAGE=$(grep -c "Extract<BridgeInternalCommand" src/bridge/TUIVSCodeBridge.ts || echo 0)
+            echo "   - **Handler methods using Extract<>:** $EXTRACT_USAGE" >> type-safety-report.md
+          else
+            echo "❌ **BridgeInternalCommand** is NOT implemented as discriminated union" >> type-safety-report.md
+          fi
+          echo "" >> type-safety-report.md
+
+          echo "## Recommendations" >> type-safety-report.md
+          if [ ${{ steps.count-any.outputs.count }} -gt 5 ]; then
+            echo "- 🔴 High any type usage detected. Consider replacing with specific types." >> type-safety-report.md
+          fi
+
+          if [ ${{ steps.calculate-score.outputs.score }} -lt 80 ]; then
+            echo "- 🔴 Type safety score is below 80. Review critical interfaces." >> type-safety-report.md
+          fi
+
+          if ! grep -q "Extract<BridgeInternalCommand" src/bridge/TUIVSCodeBridge.ts; then
+            echo "- 🔴 Consider using Extract<> utility for better type narrowing." >> type-safety-report.md
+          fi
+
+      - name: Upload type safety report
+        uses: actions/upload-artifact@v4
+        with:
+          name: type-safety-report-${{ github.sha }}
+          path: type-safety-report.md
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('type-safety-report.md', 'utf8');
+
+            const score = ${{ steps.calculate-score.outputs.score }};
+            const anyCount = ${{ steps.count-any.outputs.count }};
+            const hasRegression = ${{ steps.check-regression.outputs.regression }};
+
+            let emoji = '✅';
+            let status = 'Good';
+
+            if (hasRegression) {
+              emoji = '❌';
+              status = 'Regression Detected';
+            } else if (score < 80) {
+              emoji = '⚠️';
+              status = 'Needs Improvement';
+            }
+
+            const comment = `## ${emoji} Type Safety Analysis ${status}
+
+            **Score:** ${score}/100
+            **Any types in critical files:** ${anyCount}
+            **Regression:** ${hasRegression ? '❌ Yes' : '✅ No'}
+
+            <details>
+            <summary>Full Report</summary>
+
+            ${report}
+            </details>
+
+            ${hasRegression ? '⚠️ **Please review the type safety regression before merging.**' : ''}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Fail the job if there's a regression
+  regression-gate:
+    name: Type Safety Gate
+    runs-on: ubuntu-latest
+    needs: type-safety-analysis
+    if: needs.type-safety-analysis.outputs.has-regression == 'true'
+
+    steps:
+      - name: Fail on regression
+        run: |
+          echo "❌ Type safety regression detected!"
+          echo "Any type count increased compared to previous commit."
+          echo "Please review and fix the type safety issues before merging."
+          exit 1
+
+  # Success notification
+  success-notification:
+    name: Type Safety Success
+    runs-on: ubuntu-latest
+    needs: type-safety-analysis
+    if: needs.type-safety-analysis.outputs.has-regression == 'false' && needs.type-safety-analysis.outputs.type-safety-score >= '80'
+
+    steps:
+      - name: Success summary
+        run: |
+          echo "✅ Type safety check passed!" >> $GITHUB_STEP_SUMMARY
+          echo "Score: ${{ needs.type-safety-analysis.outputs.type-safety-score }}/100" >> $GITHUB_STEP_SUMMARY
+          echo "Any types: ${{ needs.type-safety-analysis.outputs.any-type-count }}" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,48 @@
+{
+  "passed": 0,
+  "total": 5,
+  "passRate": 0,
+  "bridgeRunning": false,
+  "results": [
+    {
+      "name": "Auth Challenge",
+      "passed": false,
+      "details": [
+        "✗ Connection error: ",
+        "✗ Test failed: "
+      ]
+    },
+    {
+      "name": "Unauthenticated Rejection",
+      "passed": false,
+      "details": [
+        "✗ Connection error: ",
+        "✗ Test failed: "
+      ]
+    },
+    {
+      "name": "Invalid Token Rejection",
+      "passed": false,
+      "details": [
+        "✗ Connection error: ",
+        "✗ Test failed: "
+      ]
+    },
+    {
+      "name": "Rate Limiting",
+      "passed": false,
+      "details": [
+        "✗ Connection error: ",
+        "✗ Test failed: "
+      ]
+    },
+    {
+      "name": "Expired Token Rejection",
+      "passed": false,
+      "details": [
+        "✗ Connection error: ",
+        "✗ Test failed: "
+      ]
+    }
+  ]
+}

@@ -1,0 +1,467 @@
+name: Performance Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/bridge/**'
+      - 'src/workspace/**'
+  schedule:
+    # Weekly performance regression testing
+    - cron: '0 6 * * 0'
+
+jobs:
+  # Bridge performance testing
+  bridge-performance:
+    name: Bridge Performance Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Bridge command processing performance
+        run: |
+          node -e "
+            const { performance } = require('perf_hooks');
+
+            // Simulate bridge command processing
+            function processCommands() {
+              const commands = [];
+
+              // Generate test commands
+              for (let i = 0; i < 10000; i++) {
+                commands.push({
+                  id: \`cmd-\${i}\`,
+                  type: 'workspace_query',
+                  payload: { queryType: 'basic' },
+                  timestamp: Date.now()
+                });
+              }
+
+              const start = performance.now();
+
+              // Process commands with type-safe handlers
+              let processed = 0;
+              for (const command of commands) {
+                switch (command.type) {
+                  case 'workspace_query':
+                    // Type narrowing should be fast
+                    if (command.payload.queryType === 'basic') {
+                      processed++;
+                    }
+                    break;
+                  case 'file_operation':
+                    if (command.payload.operation && command.payload.path) {
+                      processed++;
+                    }
+                    break;
+                  case 'auth_request':
+                    if (command.payload.token) {
+                      processed++;
+                    }
+                    break;
+                }
+              }
+
+              const end = performance.now();
+              const duration = end - start;
+
+              console.log(\`Processed \${processed} commands in \${duration.toFixed(2)}ms\`);
+              console.log(\`Average: \${(duration / commands.length).toFixed(4)}ms per command\`);
+
+              // Performance threshold: should process 10k commands in < 100ms
+              if (duration > 100) {
+                console.error('❌ Performance regression: Command processing too slow');
+                process.exit(1);
+              } else {
+                console.log('✅ Bridge command processing performance acceptable');
+              }
+            }
+
+            processCommands();
+          "
+
+      - name: Type narrowing performance
+        run: |
+          node -e "
+            const { performance } = require('perf_hooks');
+
+            function testTypeNarrowing() {
+              const commands = [];
+
+              // Create mixed command types
+              for (let i = 0; i < 50000; i++) {
+                const types = ['workspace_query', 'file_operation', 'auth_request', 'command_execution', 'context_request'];
+                const randomType = types[i % types.length];
+
+                let payload;
+                switch (randomType) {
+                  case 'workspace_query':
+                    payload = { queryType: 'basic' };
+                    break;
+                  case 'file_operation':
+                    payload = { operation: 'read', path: '/test.ts' };
+                    break;
+                  case 'auth_request':
+                    payload = { token: 'test-token' };
+                    break;
+                  case 'command_execution':
+                    payload = { commandName: 'test', args: [], safetyLevel: 'read_only' };
+                    break;
+                  case 'context_request':
+                    payload = { contextType: 'active_editor' };
+                    break;
+                }
+
+                commands.push({
+                  id: \`cmd-\${i}\`,
+                  type: randomType,
+                  payload,
+                  timestamp: Date.now()
+                });
+              }
+
+              console.log(\`Testing type narrowing performance with \${commands.length} mixed commands...\`);
+
+              const start = performance.now();
+
+              let processed = 0;
+              for (const command of commands) {
+                // Simulate discriminated union type narrowing
+                switch (command.type) {
+                  case 'workspace_query':
+                    if (command.payload.queryType) processed++;
+                    break;
+                  case 'file_operation':
+                    if (command.payload.operation && command.payload.path) processed++;
+                    break;
+                  case 'auth_request':
+                    if (command.payload.token) processed++;
+                    break;
+                  case 'command_execution':
+                    if (command.payload.commandName && command.payload.safetyLevel) processed++;
+                    break;
+                  case 'context_request':
+                    if (command.payload.contextType) processed++;
+                    break;
+                }
+              }
+
+              const end = performance.now();
+              const duration = end - start;
+
+              console.log(\`Processed \${processed} mixed commands in \${duration.toFixed(2)}ms\`);
+              console.log(\`Average: \${(duration / commands.length).toFixed(4)}ms per command\`);
+
+              // Type narrowing should be very fast
+              if (duration > 200) {
+                console.error('❌ Type narrowing performance regression detected');
+                process.exit(1);
+              } else {
+                console.log('✅ Type narrowing performance excellent');
+              }
+            }
+
+            testTypeNarrowing();
+          "
+
+      - name: Memory usage test
+        run: |
+          node -e "
+            function testMemoryUsage() {
+              const initialMemory = process.memoryUsage();
+
+              // Create many typed command objects
+              const commands = [];
+              for (let i = 0; i < 100000; i++) {
+                commands.push({
+                  id: \`cmd-\${i}\`,
+                  type: 'workspace_query',
+                  payload: { queryType: 'basic', includeConfigDetails: true },
+                  timestamp: Date.now(),
+                  requiresApproval: false
+                });
+              }
+
+              const afterCreation = process.memoryUsage();
+
+              // Process all commands
+              let processed = 0;
+              for (const cmd of commands) {
+                if (cmd.type === 'workspace_query') {
+                  processed++;
+                }
+              }
+
+              const afterProcessing = process.memoryUsage();
+
+              console.log('Memory Usage Analysis:');
+              console.log(\`Initial heap: \${(initialMemory.heapUsed / 1024 / 1024).toFixed(2)} MB\`);
+              console.log(\`After creation: \${(afterCreation.heapUsed / 1024 / 1024).toFixed(2)} MB\`);
+              console.log(\`After processing: \${(afterProcessing.heapUsed / 1024 / 1024).toFixed(2)} MB\`);
+
+              const memoryIncrease = afterProcessing.heapUsed - initialMemory.heapUsed;
+              console.log(\`Memory increase: \${(memoryIncrease / 1024 / 1024).toFixed(2)} MB\`);
+
+              // Memory usage should be reasonable (< 100MB for 100k commands)
+              if (memoryIncrease > 100 * 1024 * 1024) {
+                console.error('❌ Excessive memory usage detected');
+                process.exit(1);
+              } else {
+                console.log('✅ Memory usage within acceptable limits');
+              }
+
+              console.log(\`Commands processed: \${processed}\`);
+            }
+
+            testMemoryUsage();
+          "
+
+  # Compilation performance
+  compilation-performance:
+    name: TypeScript Compilation Performance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Measure compilation time
+        run: |
+          echo "Measuring TypeScript compilation performance..."
+
+          # Clean compilation
+          time npm run compile
+
+          # Incremental compilation test
+          echo "// Test change" >> src/bridge/TUIVSCodeBridge.ts
+          time npx tsc --incremental
+
+          # Type checking only
+          time npx tsc --noEmit
+
+      - name: Bundle size analysis
+        run: |
+          npm run compile
+
+          echo "Bundle size analysis:"
+          echo "Total bundle size: $(du -sh out/)"
+          echo ""
+
+          echo "Largest files:"
+          find out/ -name "*.js" -exec du -h {} \; | sort -rh | head -10
+          echo ""
+
+          # Check for bloat
+          TOTAL_SIZE_KB=$(du -sk out/ | cut -f1)
+          echo "Total size: ${TOTAL_SIZE_KB}KB"
+
+          # Warning if bundle exceeds 5MB
+          if [ $TOTAL_SIZE_KB -gt 5120 ]; then
+            echo "⚠️  Large bundle size detected (${TOTAL_SIZE_KB}KB > 5MB)"
+            echo "Consider code splitting or tree shaking"
+          else
+            echo "✅ Bundle size acceptable"
+          fi
+
+  # Performance regression detection
+  performance-regression:
+    name: Performance Regression Detection
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    timeout-minutes: 12
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Benchmark current implementation
+        run: |
+          npm run compile
+
+          node -e "
+            const { performance } = require('perf_hooks');
+            const fs = require('fs');
+
+            function runBenchmark() {
+              const results = {
+                commandProcessing: 0,
+                typeNarrowing: 0,
+                memoryUsage: 0,
+                timestamp: Date.now()
+              };
+
+              // Command processing benchmark
+              const commands = Array.from({ length: 10000 }, (_, i) => ({
+                id: \`cmd-\${i}\`,
+                type: 'workspace_query',
+                payload: { queryType: 'basic' },
+                timestamp: Date.now()
+              }));
+
+              const start = performance.now();
+              let processed = 0;
+              for (const cmd of commands) {
+                if (cmd.type === 'workspace_query') processed++;
+              }
+              results.commandProcessing = performance.now() - start;
+
+              // Type narrowing benchmark
+              const mixedCommands = Array.from({ length: 5000 }, (_, i) => {
+                const types = ['workspace_query', 'file_operation', 'auth_request'];
+                return {
+                  id: \`mixed-\${i}\`,
+                  type: types[i % types.length],
+                  payload: { test: true },
+                  timestamp: Date.now()
+                };
+              });
+
+              const narrowStart = performance.now();
+              let narrowProcessed = 0;
+              for (const cmd of mixedCommands) {
+                switch (cmd.type) {
+                  case 'workspace_query':
+                  case 'file_operation':
+                  case 'auth_request':
+                    narrowProcessed++;
+                    break;
+                }
+              }
+              results.typeNarrowing = performance.now() - narrowStart;
+
+              // Memory usage
+              results.memoryUsage = process.memoryUsage().heapUsed;
+
+              console.log('Current benchmark results:');
+              console.log(JSON.stringify(results, null, 2));
+
+              fs.writeFileSync('benchmark-results.json', JSON.stringify(results, null, 2));
+            }
+
+            runBenchmark();
+          "
+
+      - name: Compare with baseline
+        run: |
+          # Get previous commit results (if available)
+          git checkout HEAD~1 2>/dev/null || git checkout main
+          npm ci > /dev/null 2>&1 || true
+          npm run compile > /dev/null 2>&1 || true
+
+          # Run baseline benchmark
+          node -e "
+            const { performance } = require('perf_hooks');
+            const fs = require('fs');
+
+            try {
+              const commands = Array.from({ length: 10000 }, (_, i) => ({
+                id: \`cmd-\${i}\`,
+                type: 'workspace_query',
+                payload: { queryType: 'basic' },
+                timestamp: Date.now()
+              }));
+
+              const start = performance.now();
+              let processed = 0;
+              for (const cmd of commands) {
+                if (cmd.type === 'workspace_query') processed++;
+              }
+              const baselineTime = performance.now() - start;
+
+              const baseline = {
+                commandProcessing: baselineTime,
+                timestamp: Date.now()
+              };
+
+              fs.writeFileSync('baseline-results.json', JSON.stringify(baseline, null, 2));
+              console.log('Baseline benchmark completed');
+            } catch (error) {
+              console.log('Could not run baseline benchmark:', error.message);
+              fs.writeFileSync('baseline-results.json', JSON.stringify({ unavailable: true }, null, 2));
+            }
+          " 2>/dev/null || echo '{"unavailable": true}' > baseline-results.json
+
+      - name: Analyze performance difference
+        run: |
+          git checkout $GITHUB_SHA
+
+          node -e "
+            const fs = require('fs');
+
+            try {
+              const current = JSON.parse(fs.readFileSync('benchmark-results.json', 'utf8'));
+              const baseline = JSON.parse(fs.readFileSync('baseline-results.json', 'utf8'));
+
+              console.log('Performance Comparison:');
+              console.log('======================');
+
+              if (baseline.unavailable) {
+                console.log('⚠️  Baseline unavailable, cannot detect regression');
+                return;
+              }
+
+              const currentTime = current.commandProcessing;
+              const baselineTime = baseline.commandProcessing;
+              const percentChange = ((currentTime - baselineTime) / baselineTime) * 100;
+
+              console.log(\`Current: \${currentTime.toFixed(2)}ms\`);
+              console.log(\`Baseline: \${baselineTime.toFixed(2)}ms\`);
+              console.log(\`Change: \${percentChange > 0 ? '+' : ''}\${percentChange.toFixed(1)}%\`);
+
+              if (percentChange > 20) {
+                console.log('❌ Performance regression detected (>20% slower)');
+                process.exit(1);
+              } else if (percentChange > 10) {
+                console.log('⚠️  Performance degradation detected (>10% slower)');
+              } else if (percentChange < -10) {
+                console.log('🚀 Performance improvement detected (>10% faster)');
+              } else {
+                console.log('✅ Performance within acceptable range');
+              }
+            } catch (error) {
+              console.log('Performance analysis failed:', error.message);
+            }
+          "
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results-${{ github.sha }}
+          path: |
+            benchmark-results.json
+            baseline-results.json

@@ -1,0 +1,90 @@
+{
+  "score": 10,
+  "results": {
+    "totalClaims": 5,
+    "verifiedClaims": 5,
+    "partiallyVerifiedClaims": 0,
+    "falseClaims": 0,
+    "unverifiedClaims": 0,
+    "details": [
+      {
+        "name": "JWT Authentication",
+        "status": "VERIFIED",
+        "evidence": [
+          "✅ JWT tokens are signed with a secret key",
+          "✅ Secret key uses cryptographically secure random generation (64 bytes)",
+          "✅ Secret key is persisted to file system",
+          "✅ JWT verification uses specific algorithm (HS256)",
+          "✅ Tokens have 24-hour expiration",
+          "✅ JWT includes issuer and audience validation"
+        ],
+        "concerns": []
+      },
+      {
+        "name": "IP Blocking System",
+        "status": "VERIFIED",
+        "evidence": [
+          "✅ IP blocking data structure exists",
+          "✅ Blocked IPs are persisted to storage",
+          "✅ Automatic IP blocking after 20 failures",
+          "✅ IP blocking is checked during authentication",
+          "✅ IP blocks have 1-hour duration",
+          "✅ Manual IP blocking/unblocking methods exist"
+        ],
+        "concerns": []
+      },
+      {
+        "name": "Token Revocation System",
+        "status": "VERIFIED",
+        "evidence": [
+          "✅ Revoked tokens tracking structure exists",
+          "✅ Revoked tokens are persisted to storage",
+          "✅ Revoked tokens are checked during validation",
+          "✅ Revocation reasons are tracked",
+          "✅ Bulk token revocation is supported",
+          "✅ Token usage timestamps are tracked"
+        ],
+        "concerns": []
+      },
+      {
+        "name": "Rate Limiting System",
+        "status": "VERIFIED",
+        "evidence": [
+          "✅ Per-IP auth rate limiting (10 attempts per 5 minutes)",
+          "✅ Per-connection message rate limiting (100/minute)",
+          "✅ Rate limits are enforced during authentication",
+          "✅ Expired rate limit windows are cleaned up",
+          "✅ Clear rate limit error messages"
+        ],
+        "concerns": []
+      },
+      {
+        "name": "Token Management Interface",
+        "status": "VERIFIED",
+        "evidence": [
+          "✅ VSCode command for token generation",
+          "✅ Token automatically copied to clipboard",
+          "✅ Command for bulk token revocation",
+          "✅ Command to view authentication status",
+          "✅ Client info included in token generation"
+        ],
+        "concerns": []
+      }
+    ]
+  },
+  "additionalFindings": {
+    "strengths": [
+      "✅ Secret files use restrictive permissions (0o600)",
+      "✅ WebSocket payload size limited to 1MB",
+      "✅ Uses cryptographically secure UUID generation",
+      "✅ WebSocket compression disabled (prevents compression attacks)"
+    ],
+    "weaknesses": [],
+    "recommendations": [
+      "Consider using bcrypt or argon2 for any password hashing",
+      "Consider adding helmet middleware for additional security headers",
+      "Consider CSRF protection for future HTTP endpoints"
+    ]
+  },
+  "productionReady": true
+}

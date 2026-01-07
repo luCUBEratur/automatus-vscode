@@ -1,0 +1,300 @@
+name: Project Health Dashboard
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    # Generate dashboard daily at 8 AM UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  generate-dashboard:
+    name: Generate Health Dashboard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Analyze project health
+        run: |
+          echo "Analyzing project health..."
+
+          # Create health report
+          cat > project-health-dashboard.md << 'EOF'
+          # 📊 Automatus VSCode Extension - Project Health Dashboard
+
+          **Generated:** $(date)
+          **Commit:** $GITHUB_SHA
+          **Branch:** $GITHUB_REF_NAME
+
+          ## 🎯 Type Safety Status
+
+          EOF
+
+          echo "### Discriminated Union Implementation" >> project-health-dashboard.md
+          if grep -q "type BridgeInternalCommand =" src/bridge/TUIVSCodeBridge.ts; then
+            echo "✅ **Implemented** - BridgeInternalCommand uses discriminated union" >> project-health-dashboard.md
+            VARIANTS=$(grep -o "type: '[^']*'" src/bridge/TUIVSCodeBridge.ts | sort -u | wc -l)
+            echo "   - Command variants: $VARIANTS" >> project-health-dashboard.md
+          else
+            echo "❌ **Not Implemented** - BridgeInternalCommand not using discriminated union" >> project-health-dashboard.md
+          fi
+
+          echo "" >> project-health-dashboard.md
+          echo "### Handler Type Safety" >> project-health-dashboard.md
+          EXTRACT_COUNT=$(grep -c "Extract<BridgeInternalCommand" src/bridge/TUIVSCodeBridge.ts || echo 0)
+          if [ $EXTRACT_COUNT -gt 3 ]; then
+            echo "✅ **Good** - $EXTRACT_COUNT handlers use Extract<> for type narrowing" >> project-health-dashboard.md
+          else
+            echo "⚠️ **Needs Improvement** - Only $EXTRACT_COUNT handlers use Extract<>" >> project-health-dashboard.md
+          fi
+
+          echo "" >> project-health-dashboard.md
+          echo "### Any Type Usage" >> project-health-dashboard.md
+          ANY_COUNT=$(grep -r ":\s*any\|<any>" src/bridge/ src/workspace/ src/types/ | grep -v test | grep -v "as any" | wc -l || echo 0)
+          if [ $ANY_COUNT -eq 0 ]; then
+            echo "🎉 **Excellent** - No any types in critical interfaces" >> project-health-dashboard.md
+          elif [ $ANY_COUNT -lt 5 ]; then
+            echo "✅ **Good** - $ANY_COUNT any types in critical interfaces" >> project-health-dashboard.md
+          elif [ $ANY_COUNT -lt 10 ]; then
+            echo "⚠️ **Acceptable** - $ANY_COUNT any types in critical interfaces" >> project-health-dashboard.md
+          else
+            echo "❌ **Needs Work** - $ANY_COUNT any types in critical interfaces" >> project-health-dashboard.md
+          fi
+
+          # Calculate type safety score
+          SCORE=100
+          SCORE=$((SCORE - (ANY_COUNT * 3)))
+          if grep -q "type BridgeInternalCommand =" src/bridge/TUIVSCodeBridge.ts; then
+            SCORE=$((SCORE + 10))
+          fi
+          SCORE=$((SCORE + (EXTRACT_COUNT * 2)))
+          if [ $SCORE -lt 0 ]; then SCORE=0; fi
+          if [ $SCORE -gt 100 ]; then SCORE=100; fi
+
+          echo "" >> project-health-dashboard.md
+          echo "### Overall Type Safety Score" >> project-health-dashboard.md
+          if [ $SCORE -ge 90 ]; then
+            echo "🎉 **$SCORE/100** - Excellent type safety" >> project-health-dashboard.md
+          elif [ $SCORE -ge 80 ]; then
+            echo "✅ **$SCORE/100** - Good type safety" >> project-health-dashboard.md
+          elif [ $SCORE -ge 70 ]; then
+            echo "⚠️ **$SCORE/100** - Acceptable type safety" >> project-health-dashboard.md
+          else
+            echo "❌ **$SCORE/100** - Poor type safety" >> project-health-dashboard.md
+          fi
+
+      - name: Analyze code quality
+        run: |
+          echo "" >> project-health-dashboard.md
+          echo "## 🔍 Code Quality Metrics" >> project-health-dashboard.md
+          echo "" >> project-health-dashboard.md
+
+          # File count analysis
+          TS_FILES=$(find src/ -name "*.ts" | wc -l)
+          TEST_FILES=$(find src/test/ -name "*.ts" 2>/dev/null | wc -l || echo 0)
+          TYPE_FILES=$(find src/test/type-safety/ -name "*.ts" 2>/dev/null | wc -l || echo 0)
+
+          echo "### Codebase Size" >> project-health-dashboard.md
+          echo "- TypeScript files: $TS_FILES" >> project-health-dashboard.md
+          echo "- Test files: $TEST_FILES" >> project-health-dashboard.md
+          echo "- Type safety tests: $TYPE_FILES" >> project-health-dashboard.md
+
+          if [ $TEST_FILES -gt 0 ]; then
+            TEST_RATIO=$((TS_FILES * 100 / (TS_FILES + TEST_FILES)))
+            if [ $TEST_RATIO -ge 40 ]; then
+              echo "✅ **Good test coverage ratio** ($TEST_RATIO% source vs test files)" >> project-health-dashboard.md
+            else
+              echo "⚠️ **Low test coverage ratio** ($TEST_RATIO% source vs test files)" >> project-health-dashboard.md
+            fi
+          fi
+
+          echo "" >> project-health-dashboard.md
+
+          # Interface and type analysis
+          INTERFACES=$(find src/ -name "*.ts" -exec grep -l "^export interface\|^interface" {} \; | wc -l)
+          TYPE_ALIASES=$(find src/ -name "*.ts" -exec grep -l "^export type\|^type.*=" {} \; | wc -l)
+
+          echo "### Type Definitions" >> project-health-dashboard.md
+          echo "- Interface definitions: $INTERFACES" >> project-health-dashboard.md
+          echo "- Type aliases: $TYPE_ALIASES" >> project-health-dashboard.md
+
+          # Complexity indicators
+          UNION_TYPES=$(grep -r " | " src/ --include="*.ts" | grep -v test | wc -l)
+          GENERICS=$(grep -r "<.*>" src/ --include="*.ts" | grep -v test | grep -v import | wc -l)
+
+          echo "- Union types: $UNION_TYPES" >> project-health-dashboard.md
+          echo "- Generic usage: $GENERICS" >> project-health-dashboard.md
+
+      - name: Check compilation status
+        run: |
+          echo "" >> project-health-dashboard.md
+          echo "## 🏗️ Build Status" >> project-health-dashboard.md
+          echo "" >> project-health-dashboard.md
+
+          # Check TypeScript compilation
+          if npx tsc --noEmit > ts-errors.log 2>&1; then
+            echo "✅ **TypeScript compilation successful**" >> project-health-dashboard.md
+          else
+            ERROR_COUNT=$(cat ts-errors.log | grep -c "error TS" || echo 0)
+            echo "❌ **TypeScript compilation failed** ($ERROR_COUNT errors)" >> project-health-dashboard.md
+            echo "" >> project-health-dashboard.md
+            echo "### Recent Compilation Errors" >> project-health-dashboard.md
+            echo '```' >> project-health-dashboard.md
+            head -20 ts-errors.log >> project-health-dashboard.md
+            echo '```' >> project-health-dashboard.md
+          fi
+
+          # Check linting
+          if npm run lint > lint-output.log 2>&1; then
+            echo "✅ **Linting passed**" >> project-health-dashboard.md
+          else
+            echo "⚠️ **Linting issues found**" >> project-health-dashboard.md
+          fi
+
+      - name: Analyze recent changes
+        run: |
+          echo "" >> project-health-dashboard.md
+          echo "## 📈 Recent Activity" >> project-health-dashboard.md
+          echo "" >> project-health-dashboard.md
+
+          # Recent commits affecting type safety
+          echo "### Recent Type Safety Changes" >> project-health-dashboard.md
+          echo '```' >> project-health-dashboard.md
+          git log --oneline -10 --grep="type\|Type\|interface\|Interface\|union\|Union" >> project-health-dashboard.md || echo "No recent type-related commits"
+          echo '```' >> project-health-dashboard.md
+
+          echo "" >> project-health-dashboard.md
+
+          # Files changed in last week
+          echo "### Recently Modified Files (Last 7 days)" >> project-health-dashboard.md
+          echo '```' >> project-health-dashboard.md
+          git log --since="1 week ago" --name-only --pretty=format: src/ | sort -u | grep -E "\.(ts|js)$" | head -10 >> project-health-dashboard.md || echo "No recent changes"
+          echo '```' >> project-health-dashboard.md
+
+      - name: Generate recommendations
+        run: |
+          echo "" >> project-health-dashboard.md
+          echo "## 🎯 Recommendations" >> project-health-dashboard.md
+          echo "" >> project-health-dashboard.md
+
+          # Type safety recommendations
+          ANY_COUNT=$(grep -r ":\s*any\|<any>" src/bridge/ src/workspace/ src/types/ | grep -v test | grep -v "as any" | wc -l || echo 0)
+          if [ $ANY_COUNT -gt 5 ]; then
+            echo "🔴 **High Priority:** Reduce any type usage in critical interfaces ($ANY_COUNT instances)" >> project-health-dashboard.md
+          fi
+
+          if ! grep -q "type BridgeInternalCommand =" src/bridge/TUIVSCodeBridge.ts; then
+            echo "🔴 **High Priority:** Implement discriminated union for BridgeInternalCommand" >> project-health-dashboard.md
+          fi
+
+          EXTRACT_COUNT=$(grep -c "Extract<BridgeInternalCommand" src/bridge/TUIVSCodeBridge.ts || echo 0)
+          if [ $EXTRACT_COUNT -lt 4 ]; then
+            echo "🟡 **Medium Priority:** Add Extract<> utility to more handler methods" >> project-health-dashboard.md
+          fi
+
+          # Test recommendations
+          TYPE_TESTS=$(find src/test/type-safety/ -name "*.ts" 2>/dev/null | wc -l || echo 0)
+          if [ $TYPE_TESTS -eq 0 ]; then
+            echo "🟡 **Medium Priority:** Add comprehensive type safety tests" >> project-health-dashboard.md
+          fi
+
+          # Build recommendations
+          if ! npx tsc --noEmit > /dev/null 2>&1; then
+            echo "🔴 **High Priority:** Fix TypeScript compilation errors" >> project-health-dashboard.md
+          fi
+
+      - name: Generate action items
+        run: |
+          echo "" >> project-health-dashboard.md
+          echo "## ✅ Action Items" >> project-health-dashboard.md
+          echo "" >> project-health-dashboard.md
+
+          # Generate specific action items based on analysis
+          ANY_COUNT=$(grep -r ":\s*any\|<any>" src/bridge/ src/workspace/ src/types/ | grep -v test | grep -v "as any" | wc -l || echo 0)
+
+          echo "### Immediate Actions" >> project-health-dashboard.md
+          if ! npx tsc --noEmit > /dev/null 2>&1; then
+            echo "- [ ] Fix TypeScript compilation errors" >> project-health-dashboard.md
+          fi
+
+          if [ $ANY_COUNT -gt 10 ]; then
+            echo "- [ ] Reduce any type usage to under 10 instances" >> project-health-dashboard.md
+          fi
+
+          echo "" >> project-health-dashboard.md
+          echo "### Medium-term Goals" >> project-health-dashboard.md
+
+          if ! grep -q "type BridgeInternalCommand =" src/bridge/TUIVSCodeBridge.ts; then
+            echo "- [ ] Implement full discriminated union system" >> project-health-dashboard.md
+          fi
+
+          echo "- [ ] Achieve 90+ type safety score" >> project-health-dashboard.md
+          echo "- [ ] Add performance regression testing" >> project-health-dashboard.md
+
+          echo "" >> project-health-dashboard.md
+          echo "### Long-term Objectives" >> project-health-dashboard.md
+          echo "- [ ] Zero any types in public interfaces" >> project-health-dashboard.md
+          echo "- [ ] Full test coverage for type safety" >> project-health-dashboard.md
+          echo "- [ ] Automated type safety monitoring" >> project-health-dashboard.md
+
+          echo "" >> project-health-dashboard.md
+          echo "---" >> project-health-dashboard.md
+          echo "*Dashboard generated by GitHub Actions on $(date)*" >> project-health-dashboard.md
+
+      - name: Upload dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-health-dashboard
+          path: project-health-dashboard.md
+
+      - name: Create GitHub Pages deployment
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Convert markdown to HTML for GitHub Pages
+          cat > index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="utf-8">
+              <title>Automatus Project Health Dashboard</title>
+              <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+                  h1 { color: #2ea043; }
+                  h2 { color: #0366d6; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px; }
+                  .score { font-size: 2em; font-weight: bold; }
+                  .excellent { color: #28a745; }
+                  .good { color: #ffc107; }
+                  .needs-work { color: #dc3545; }
+                  code { background: #f6f8fa; padding: 2px 4px; border-radius: 3px; }
+                  pre { background: #f6f8fa; padding: 16px; border-radius: 6px; overflow-x: auto; }
+              </style>
+          </head>
+          <body>
+          EOF
+
+          # Simple markdown to HTML conversion
+          sed 's/^# /\<h1\>/g; s/^## /\<h2\>/g; s/^### /\<h3\>/g; s/^- /\<li\>/g; s/`\([^`]*\)`/\<code\>\1\<\/code\>/g' project-health-dashboard.md >> index.html
+
+          echo '</body></html>' >> index.html
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          destination_dir: dashboard
+          keep_files: false
+          commit_message: 'Update project health dashboard'

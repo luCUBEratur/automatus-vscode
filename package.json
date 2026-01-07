@@ -1,0 +1,365 @@
+{
+  "name": "automatus",
+  "displayName": "Automatus",
+  "description": "AI-powered development assistant with safety-first architecture",
+  "version": "0.1.0",
+  "publisher": "automatus-dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/automatus-dev/automatus-vscode"
+  },
+  "homepage": "https://github.com/automatus-dev/automatus-vscode#readme",
+  "bugs": {
+    "url": "https://github.com/automatus-dev/automatus-vscode/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "AI",
+    "Machine Learning",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "assistant",
+    "code-generation",
+    "safety",
+    "automation"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "automatus.generateCodePreview",
+        "title": "Generate Code Preview",
+        "category": "Automatus"
+      },
+      {
+        "command": "automatus.analyzeCodeSelection",
+        "title": "Analyze Code Selection",
+        "category": "Automatus"
+      },
+      {
+        "command": "automatus.explainCode",
+        "title": "Explain Code",
+        "category": "Automatus"
+      },
+      {
+        "command": "automatus.openChat",
+        "title": "Open Chat Panel",
+        "category": "Automatus"
+      },
+      {
+        "command": "automatus.showSafetyStatus",
+        "title": "Show Safety Status",
+        "category": "Automatus"
+      },
+      {
+        "command": "automatus.bridge.start",
+        "title": "Start TUI Bridge",
+        "category": "Automatus Bridge"
+      },
+      {
+        "command": "automatus.bridge.stop",
+        "title": "Stop TUI Bridge",
+        "category": "Automatus Bridge"
+      },
+      {
+        "command": "automatus.bridge.status",
+        "title": "Bridge Status",
+        "category": "Automatus Bridge"
+      },
+      {
+        "command": "automatus.bridge.configure",
+        "title": "Configure Bridge",
+        "category": "Automatus Bridge"
+      },
+      {
+        "command": "automatus.bridge.health",
+        "title": "Bridge Health Check",
+        "category": "Automatus Bridge"
+      },
+      {
+        "command": "automatus.bridge.metrics",
+        "title": "Performance Metrics",
+        "category": "Automatus Bridge"
+      },
+      {
+        "command": "automatus.bridge.generateToken",
+        "title": "Generate Bridge Token",
+        "category": "Automatus Bridge"
+      },
+      {
+        "command": "automatus.bridge.revokeAllTokens",
+        "title": "Revoke All Tokens",
+        "category": "Automatus Bridge"
+      },
+      {
+        "command": "automatus.bridge.authStatus",
+        "title": "Authentication Status",
+        "category": "Automatus Bridge"
+      },
+      {
+        "command": "automatus.tui.connect",
+        "title": "Connect to TUI",
+        "category": "Automatus TUI"
+      },
+      {
+        "command": "automatus.tui.disconnect",
+        "title": "Disconnect from TUI",
+        "category": "Automatus TUI"
+      },
+      {
+        "command": "automatus.tui.showMenu",
+        "title": "TUI Connection Menu",
+        "category": "Automatus TUI"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "automatusChat",
+          "name": "Automatus Chat",
+          "when": "automatus.activated"
+        },
+        {
+          "id": "automatusStatus",
+          "name": "Safety Status",
+          "when": "automatus.activated"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "automatus",
+          "title": "Automatus",
+          "icon": "$(robot)"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Automatus",
+      "properties": {
+        "automatus.kernel.mode": {
+          "type": "string",
+          "enum": [
+            "embedded",
+            "external"
+          ],
+          "default": "external",
+          "description": "How to connect to Automatus kernel"
+        },
+        "automatus.safety.currentPhase": {
+          "type": "number",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "default": 1,
+          "description": "Current safety phase (1=read-only, 2=controlled-write, 3=expanded, 4=mature)"
+        },
+        "automatus.safety.allowedDirectories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "./src/temp/",
+            "./tests/generated/"
+          ],
+          "description": "Directories where Automatus can write files"
+        },
+        "automatus.safety.requireApproval": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require user approval for file operations"
+        },
+        "automatus.safety.createBackups": {
+          "type": "boolean",
+          "default": true,
+          "description": "Create backups before modifying files"
+        },
+        "automatus.codeGeneration.mode": {
+          "type": "string",
+          "enum": [
+            "preview_only",
+            "controlled_write",
+            "full_access"
+          ],
+          "default": "preview_only",
+          "description": "Code generation mode"
+        },
+        "automatus.audit.logLevel": {
+          "type": "string",
+          "enum": [
+            "all",
+            "changes_only",
+            "errors_only"
+          ],
+          "default": "all",
+          "description": "Audit log level"
+        },
+        "automatus.server.url": {
+          "type": "string",
+          "default": "http://localhost:9000",
+          "description": "Automatus server REST API URL"
+        },
+        "automatus.bridge.port": {
+          "type": "number",
+          "default": 19888,
+          "description": "Port for TUI-VSCode bridge WebSocket server"
+        },
+        "automatus.bridge.timeout": {
+          "type": "number",
+          "default": 30000,
+          "description": "Bridge connection timeout in milliseconds"
+        },
+        "automatus.bridge.retryAttempts": {
+          "type": "number",
+          "default": 3,
+          "description": "Number of retry attempts for bridge operations"
+        },
+        "automatus.bridge.enableHeartbeat": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable heartbeat for bridge connection monitoring"
+        },
+        "automatus.bridge.heartbeatInterval": {
+          "type": "number",
+          "default": 30000,
+          "description": "Heartbeat interval in milliseconds"
+        },
+        "automatus.bridge.safety.requireApproval": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require user approval for bridge commands"
+        },
+        "automatus.bridge.safety.allowedOperations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "readFile",
+            "getWorkspaceFiles",
+            "getCurrentSelection"
+          ],
+          "description": "Operations allowed through the bridge"
+        },
+        "automatus.bridge.safety.maxFileSize": {
+          "type": "number",
+          "default": 1048576,
+          "description": "Maximum file size (in bytes) for bridge operations"
+        },
+        "automatus.bridge.safety.allowedExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".ts",
+            ".js",
+            ".tsx",
+            ".jsx",
+            ".py",
+            ".java",
+            ".cpp",
+            ".c",
+            ".h",
+            ".cs",
+            ".php",
+            ".rb",
+            ".go",
+            ".rs",
+            ".swift",
+            ".kt",
+            ".vue",
+            ".svelte"
+          ],
+          "description": "File extensions allowed for bridge operations"
+        },
+        "automatus.workspace.watchedFileExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "js", "jsx", "ts", "tsx", "vue", "svelte",
+            "py", "rb", "java", "kt", "scala",
+            "go", "rs", "cpp", "c", "h", "hpp",
+            "cs", "vb", "fs", "php", "swift",
+            "dart", "lua", "r", "jl", "nim",
+            "json", "yaml", "yml", "toml", "ini", "cfg",
+            "xml", "plist", "properties", "conf",
+            "md", "rst", "txt", "adoc", "tex",
+            "html", "htm", "css", "scss", "sass", "less",
+            "sql", "csv", "tsv", "graphql", "proto",
+            "sh", "bash", "zsh", "fish", "ps1", "cmd", "bat",
+            "lock", "sum"
+          ],
+          "description": "File extensions to monitor for workspace changes"
+        },
+        "automatus.workspace.ignoredPatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "node_modules", "\\.git", "\\.vscode", "\\.idea", "\\.vs",
+            "\\.venv", "\\.env", "__pycache__", "\\.pytest_cache", "\\.mypy_cache",
+            "target/debug", "target/release", "build", "dist", "out", "bin", "obj",
+            "\\.log$", "\\.tmp$", "\\.temp$", "\\.cache$",
+            "\\.DS_Store$", "Thumbs\\.db$", "\\.swp$", "\\.swo$", "~$"
+          ],
+          "description": "File patterns to ignore during workspace monitoring (regex patterns)"
+        },
+        "automatus.workspace.maxFileSize": {
+          "type": "number",
+          "default": 10,
+          "description": "Maximum file size in MB to monitor for changes"
+        },
+        "automatus.workspace.debounceDelay": {
+          "type": "number",
+          "default": 500,
+          "description": "Delay in milliseconds before sending workspace updates (debounce)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/ws": "^8.18.1",
+    "jsonwebtoken": "^9.0.3",
+    "uuid": "^9.0.1",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/uuid": "^9.0.7",
+    "@types/vscode": "^1.74.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.1"
+  }
+}
