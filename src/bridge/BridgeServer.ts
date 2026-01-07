@@ -17,7 +17,7 @@ export interface BridgeMetrics {
     peakMemoryUsage: number;
     currentMemoryUsage: number;
     messageQueueSize: number;
-    circuitBreakers?: any[];
+    circuitBreakers?: object[];
   };
 }
 

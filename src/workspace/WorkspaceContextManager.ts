@@ -183,7 +183,7 @@ export class WorkspaceContextManager implements IWorkspaceContextManager {
   }
 
   private setupFileWatcherEvents(): void {
-    if (!this.fileSystemWatcher) return;
+    if (!this.fileSystemWatcher) {return;}
 
     this.fileSystemWatcher.onDidCreate((uri) => {
       if (this.shouldTrackFile(uri)) {
@@ -359,7 +359,7 @@ export class WorkspaceContextManager implements IWorkspaceContextManager {
   }
 
   private async sendWorkspaceUpdate(type: string, updates: WorkspaceUpdate[]): Promise<void> {
-    if (!this.bridge) return;
+    if (!this.bridge) {return;}
 
     // Send update to all connected TUI clients
     const connections = (this.bridge as any).connections || new Map();
@@ -655,7 +655,7 @@ export class WorkspaceContextManager implements IWorkspaceContextManager {
   }
 
   private async sendInitialWorkspaceContext(): Promise<void> {
-    if (!this.bridge) return;
+    if (!this.bridge) {return;}
 
     try {
       const context = await this.getCurrentWorkspaceContext();

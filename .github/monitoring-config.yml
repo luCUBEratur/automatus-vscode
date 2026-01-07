@@ -1,0 +1,59 @@
+# 🔍 Automated Monitoring Configuration
+# This file defines thresholds and settings for automated monitoring
+
+type_safety:
+  any_types:
+    warning_threshold: 25
+    critical_threshold: 30
+    scan_paths:
+      - "src/bridge/"
+      - "src/workspace/"
+    exclude_patterns:
+      - "test"
+      - "as any"  # Type assertions are acceptable in some cases
+
+build_performance:
+  compilation:
+    warning_threshold: 20  # seconds
+    critical_threshold: 30  # seconds
+  bundle_size:
+    warning_threshold: "2MB"
+    critical_threshold: "5MB"
+
+code_quality:
+  complexity:
+    max_lines_per_file: 500
+    max_cyclomatic_complexity: 15
+    max_union_type_members: 10
+  architecture:
+    max_total_lines: 20000
+    max_files_per_module: 20
+
+security:
+  dependencies:
+    audit_level: "moderate"  # Options: low, moderate, high, critical
+    auto_fix: false
+    alert_on_new_vulnerabilities: true
+
+performance:
+  test_execution:
+    warning_threshold: 300   # seconds
+    critical_threshold: 600  # seconds
+  memory_usage:
+    warning_threshold: "512MB"
+    critical_threshold: "1GB"
+
+notifications:
+  create_issues_for_critical: true
+  comment_on_prs_for_warnings: true
+  slack_webhook_url: ""  # Optional: Set to enable Slack notifications
+  email_alerts: []       # Optional: List of email addresses
+
+workflows:
+  monitoring_schedule: "0 9 * * *"  # Daily at 9 AM UTC
+  dashboard_schedule: "0 8 * * *"   # Daily at 8 AM UTC
+  success_rate_threshold: 90        # Minimum workflow success rate %
+
+github_actions:
+  quota_warning_threshold: 80       # Warn when 80% of quota used
+  quota_critical_threshold: 95      # Alert when 95% of quota used

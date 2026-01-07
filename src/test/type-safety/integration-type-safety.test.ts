@@ -384,9 +384,9 @@ suite('Integration Type Safety Tests', () => {
     test('should handle missing or malformed payloads gracefully', () => {
       function validateCommandPayload(command: any): boolean {
         try {
-          if (!command || typeof command !== 'object') return false;
-          if (!command.id || !command.type || !command.timestamp) return false;
-          if (!command.payload || typeof command.payload !== 'object') return false;
+          if (!command || typeof command !== 'object') {return false;}
+          if (!command.id || !command.type || !command.timestamp) {return false;}
+          if (!command.payload || typeof command.payload !== 'object') {return false;}
 
           // Type-specific validation
           switch (command.type) {

@@ -90,7 +90,7 @@ export class TUIConnectionManager {
   }
 
   private setupClientEventHandlers(): void {
-    if (!this.client) return;
+    if (!this.client) {return;}
 
     this.client.on('connected', () => {
       this.updateStatusBar('authenticating');

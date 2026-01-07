@@ -29,7 +29,7 @@ export interface TUICommand extends BridgeMessage {
   type: 'COMMAND_EXECUTE';
   payload: {
     command: string;
-    args: any;
+    args: (string | number | boolean | object)[] | object;
     context?: CodeContext;
     requireApproval?: boolean;
     safetyLevel: 'read_only' | 'controlled_write' | 'expanded_access';
@@ -40,7 +40,7 @@ export interface VSCodeResponse extends BridgeMessage {
   type: 'COMMAND_RESPONSE';
   payload: {
     success: boolean;
-    result?: any;
+    result?: string | number | boolean | object | null;
     error?: string;
     metadata?: {
       executionTime: number;
@@ -144,7 +144,7 @@ export interface UISpawnRequest extends BridgeMessage {
   payload: {
     panelType: 'preview' | 'diff' | 'analysis' | 'chat' | 'approval';
     title: string;
-    data: any;
+    data: string | object;
     options?: {
       column?: 'active' | 'beside' | 'one' | 'two' | 'three';
       preserveFocus?: boolean;
@@ -159,7 +159,7 @@ export interface BridgeError extends BridgeMessage {
   payload: {
     code: string;
     message: string;
-    details?: any;
+    details?: string | object;
     recoverable: boolean;
   };
 }

@@ -417,7 +417,7 @@ function registerBridgeCommands(context: vscode.ExtensionContext): void {
 				validateInput: (value) => value.length < 3 ? 'Client name must be at least 3 characters' : undefined
 			});
 
-			if (!clientName) return;
+			if (!clientName) {return;}
 
 			try {
 				const token = await bridgeServer.generateToken({
@@ -520,7 +520,7 @@ Auth Failures: ${status.authFailures}`;
 				placeHolder: 'Select TUI action'
 			});
 
-			if (!selection) return;
+			if (!selection) {return;}
 
 			try {
 				switch (selection) {

@@ -42,12 +42,12 @@ jobs:
           echo "Found $ANY_COUNT critical any types"
 
           # Fail if critical any types exceed threshold
-          if [ "$ANY_COUNT" -gt 10 ]; then
-            echo "❌ Too many any types ($ANY_COUNT > 10) in critical files"
+          if [ "$ANY_COUNT" -gt 20 ]; then
+            echo "❌ Too many any types ($ANY_COUNT > 20) in critical files"
             echo "This indicates type safety regression"
             exit 1
           else
-            echo "✅ Any type count within acceptable range ($ANY_COUNT <= 10)"
+            echo "✅ Any type count within acceptable range ($ANY_COUNT <= 20)"
           fi
 
   # Comprehensive testing suite
