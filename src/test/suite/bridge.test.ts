@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import WebSocket from 'ws';
 import { TUIVSCodeBridge, WorkspaceInfo, BridgeInternalCommand } from '../../bridge/TUIVSCodeBridge';
-import { TUICommand, VSCodeResponse } from '../../bridge/types';
+import { VSCodeResponse } from '../../bridge/types';
 import { BridgeServer, BridgeMetrics, BridgeHealth } from '../../bridge/BridgeServer';
 import { ConfigurationManager } from '../../config/ConfigurationManager';
 import { SafetyGuard } from '../../safety/SafetyGuard';

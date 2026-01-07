@@ -14,11 +14,11 @@ import {
  * This test suite verifies that the discriminated union type system
  * provides proper type safety for bridge commands and responses.
  */
-describe('Bridge Type Safety', () => {
+suite('Bridge Type Safety', () => {
 
-  describe('Discriminated Union Command Types', () => {
+  suite('Discriminated Union Command Types', () => {
 
-    it('should enforce WorkspaceQueryPayload structure', () => {
+    test('should enforce WorkspaceQueryPayload structure', () => {
       // Valid workspace query payload
       const validPayload: WorkspaceQueryPayload = {
         queryType: 'context',
@@ -34,7 +34,7 @@ describe('Bridge Type Safety', () => {
       // const invalidPayload: WorkspaceQueryPayload = { queryType: 'invalid' };
     });
 
-    it('should enforce FileOperationPayload structure', () => {
+    test('should enforce FileOperationPayload structure', () => {
       // Valid file operation payload
       const validPayload: FileOperationPayload = {
         operation: 'read',
@@ -46,7 +46,7 @@ describe('Bridge Type Safety', () => {
       assert.equal(validPayload.path, '/test/file.ts');
     });
 
-    it('should enforce CommandExecutionPayload structure', () => {
+    test('should enforce CommandExecutionPayload structure', () => {
       // Valid command execution payload
       const validPayload: CommandExecutionPayload = {
         commandName: 'test.command',
@@ -64,7 +64,7 @@ describe('Bridge Type Safety', () => {
       assert.equal(validPayload.safetyLevel, 'read_only');
     });
 
-    it('should enforce ContextRequestPayload structure', () => {
+    test('should enforce ContextRequestPayload structure', () => {
       // Valid context request payload
       const validPayload: ContextRequestPayload = {
         contextType: 'active_editor'
@@ -73,7 +73,7 @@ describe('Bridge Type Safety', () => {
       assert.equal(validPayload.contextType, 'active_editor');
     });
 
-    it('should enforce AuthRequestPayload structure', () => {
+    test('should enforce AuthRequestPayload structure', () => {
       // Valid auth request payload
       const validPayload: AuthRequestPayload = {
         token: 'jwt-token-string'
@@ -83,9 +83,9 @@ describe('Bridge Type Safety', () => {
     });
   });
 
-  describe('Bridge Command Construction', () => {
+  suite('Bridge Command Construction', () => {
 
-    it('should create properly typed workspace query command', () => {
+    test('should create properly typed workspace query command', () => {
       const command = {
         id: 'test-1',
         type: 'workspace_query' as const,
@@ -102,7 +102,7 @@ describe('Bridge Type Safety', () => {
       assert.equal(command.payload.queryType, 'context');
     });
 
-    it('should create properly typed file operation command', () => {
+    test('should create properly typed file operation command', () => {
       const command = {
         id: 'test-2',
         type: 'file_operation' as const,
@@ -119,7 +119,7 @@ describe('Bridge Type Safety', () => {
       assert.equal(command.payload.operation, 'write');
     });
 
-    it('should create properly typed command execution command', () => {
+    test('should create properly typed command execution command', () => {
       const command = {
         id: 'test-3',
         type: 'command_execution' as const,
@@ -137,7 +137,7 @@ describe('Bridge Type Safety', () => {
       assert.equal(command.payload.safetyLevel, 'controlled_write');
     });
 
-    it('should create properly typed context request command', () => {
+    test('should create properly typed context request command', () => {
       const command = {
         id: 'test-4',
         type: 'context_request' as const,
@@ -152,7 +152,7 @@ describe('Bridge Type Safety', () => {
       assert.equal(command.payload.contextType, 'selection');
     });
 
-    it('should create properly typed auth request command', () => {
+    test('should create properly typed auth request command', () => {
       const command = {
         id: 'test-5',
         type: 'auth_request' as const,
@@ -168,9 +168,9 @@ describe('Bridge Type Safety', () => {
     });
   });
 
-  describe('Type Guard Behavior', () => {
+  suite('Type Guard Behavior', () => {
 
-    it('should properly narrow types in switch statements', () => {
+    test('should properly narrow types in switch statements', () => {
       const commands = [
         {
           id: 'test-workspace',
@@ -202,9 +202,9 @@ describe('Bridge Type Safety', () => {
     });
   });
 
-  describe('Response Data Type Safety', () => {
+  suite('Response Data Type Safety', () => {
 
-    it('should properly type workspace response data', () => {
+    test('should properly type workspace response data', () => {
       // Valid workspace response should include WorkspaceContext properties
       const response = {
         id: 'test-1',
@@ -230,7 +230,7 @@ describe('Bridge Type Safety', () => {
       assert.ok(response.data);
     });
 
-    it('should properly type file operation response data', () => {
+    test('should properly type file operation response data', () => {
       const response = {
         id: 'test-2',
         success: true,
@@ -247,7 +247,7 @@ describe('Bridge Type Safety', () => {
       assert.equal(response.data.operation, 'read');
     });
 
-    it('should properly type command execution response data', () => {
+    test('should properly type command execution response data', () => {
       const response = {
         id: 'test-3',
         success: true,
@@ -267,7 +267,7 @@ describe('Bridge Type Safety', () => {
       assert.equal(response.data.metadata.safetyLevel, 'controlled_write');
     });
 
-    it('should properly type error responses', () => {
+    test('should properly type error responses', () => {
       const errorResponse = {
         id: 'test-error',
         success: false,
@@ -281,9 +281,9 @@ describe('Bridge Type Safety', () => {
     });
   });
 
-  describe('Compile-time Type Checking', () => {
+  suite('Compile-time Type Checking', () => {
 
-    it('should prevent invalid command type combinations', () => {
+    test('should prevent invalid command type combinations', () => {
       // These combinations should cause TypeScript compilation errors:
 
       // Invalid: workspace_query with file operation payload
@@ -302,16 +302,16 @@ describe('Bridge Type Safety', () => {
       assert.ok(true, 'Discriminated unions prevent invalid type combinations');
     });
 
-    it('should require all discriminated union cases to be handled', () => {
+    test('should require all discriminated union cases to be handled', () => {
       // TypeScript should require exhaustive case handling in switch statements
       // The switch in TUIVSCodeBridge.handleTUICommand should be exhaustive
       assert.ok(true, 'All command types must be handled in switch statements');
     });
   });
 
-  describe('Runtime Type Validation', () => {
+  suite('Runtime Type Validation', () => {
 
-    it('should validate payload structures at runtime', () => {
+    test('should validate payload structures at runtime', () => {
       // Test that the bridge properly validates command payloads
       const validCommand = {
         id: 'test',
@@ -331,7 +331,7 @@ describe('Bridge Type Safety', () => {
       });
     });
 
-    it('should handle malformed payloads gracefully', () => {
+    test('should handle malformed payloads gracefully', () => {
       // Test error handling for invalid payloads
       assert.ok(true, 'Bridge should handle malformed payloads with proper error responses');
     });
@@ -344,9 +344,9 @@ describe('Bridge Type Safety', () => {
  * These tests verify that TypeScript compilation catches type errors
  * at build time rather than runtime.
  */
-describe('Type Compilation Verification', () => {
+suite('Type Compilation Verification', () => {
 
-  it('should compile discriminated union types correctly', () => {
+  test('should compile discriminated union types correctly', () => {
     // This test verifies that the discriminated union compiles properly
     type TestCommand =
       | { type: 'test_a'; payload: { valueA: string } }
@@ -372,7 +372,7 @@ describe('Type Compilation Verification', () => {
     }
   });
 
-  it('should prevent any type usage in critical interfaces', () => {
+  test('should prevent any type usage in critical interfaces', () => {
     // Verify that we've eliminated problematic any types
     // This is more of a documentation test - the real verification
     // happens during TypeScript compilation

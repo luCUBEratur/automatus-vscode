@@ -8,10 +8,13 @@ import { BridgeServer } from '../../bridge/BridgeServer';
 import { ConfigurationManager } from '../../config/ConfigurationManager';
 import { SafetyGuard } from '../../safety/SafetyGuard';
 import {
-  TUICommand,
   BridgeConfig,
   BridgeMessage
 } from '../../bridge/types';
+import { BridgeInternalCommand } from '../../bridge/TUIVSCodeBridge';
+import {
+  createWorkspaceQueryCommand
+} from '../utils/bridge-test-helpers';
 import { AutomatusConfig } from '../../types';
 
 suite('Circuit Breaker Functionality Verification', () => {
@@ -87,16 +90,13 @@ suite('Circuit Breaker Functionality Verification', () => {
     for (const cmdName of unknownCommands) {
       // Send 5 failures for each command (should trigger circuit breaker)
       for (let i = 0; i < 6; i++) {
-        const command: TUICommand = {
+        // Create an invalid command to trigger errors
+        const command: BridgeInternalCommand = {
           id: `${cmdName}-${i}`,
-          type: 'COMMAND_EXECUTE',
-          timestamp: new Date().toISOString(),
-          source: 'TUI',
-          sessionId: 'circuit-test',
+          type: 'workspace_query',
+          timestamp: Date.now(),
           payload: {
-            command: cmdName,
-            args: {},
-            safetyLevel: 'read_only'
+            queryType: cmdName as any  // Invalid query type
           }
         };
 
@@ -144,16 +144,12 @@ suite('Circuit Breaker Functionality Verification', () => {
 
     // Step 1: Trigger circuit breaker with unknown command
     for (let i = 0; i < 6; i++) {
-      const command: TUICommand = {
+      const command: BridgeInternalCommand = {
         id: `fail-${i}`,
-        type: 'COMMAND_EXECUTE',
-        timestamp: new Date().toISOString(),
-        source: 'TUI',
-        sessionId: 'reset-test',
+        type: 'workspace_query',
+        timestamp: Date.now(),
         payload: {
-          command: 'nonExistent',
-          args: {},
-          safetyLevel: 'read_only'
+          queryType: 'nonExistent' as any  // Invalid query type
         }
       };
 
@@ -171,18 +167,8 @@ suite('Circuit Breaker Functionality Verification', () => {
     // Step 2: Send a valid command (different command that should work)
     receivedMessages = []; // Clear messages
 
-    const validCommand: TUICommand = {
-      id: 'valid-1',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'reset-test',
-      payload: {
-        command: 'getWorkspaceFiles',
-        args: {},
-        safetyLevel: 'read_only'
-      }
-    };
+    const validCommand = createWorkspaceQueryCommand();
+    validCommand.id = 'valid-1';
 
     wsClient.send(JSON.stringify(validCommand));
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -202,16 +188,12 @@ suite('Circuit Breaker Functionality Verification', () => {
     // Test that different error codes create different circuit breakers
     // First, trigger UNKNOWN_COMMAND errors
     for (let i = 0; i < 6; i++) {
-      const command: TUICommand = {
+      const command: BridgeInternalCommand = {
         id: `unknown-${i}`,
-        type: 'COMMAND_EXECUTE',
-        timestamp: new Date().toISOString(),
-        source: 'TUI',
-        sessionId: 'error-type-test',
+        type: 'workspace_query',
+        timestamp: Date.now(),
         payload: {
-          command: 'testCommand',
-          args: {},
-          safetyLevel: 'read_only'
+          queryType: 'testCommand' as any  // Invalid query type
         }
       };
 

@@ -2,7 +2,6 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import WebSocket from 'ws';
 import { TUIVSCodeBridge, BridgeInternalCommand, AuthRequestPayload, WorkspaceQueryPayload } from '../../bridge/TUIVSCodeBridge';
-import { TUICommand } from '../../bridge/types';
 import { BridgeServer } from '../../bridge/BridgeServer';
 import { ConfigurationManager } from '../../config/ConfigurationManager';
 import { SafetyGuard } from '../../safety/SafetyGuard';
@@ -447,8 +446,8 @@ suite('Bridge Performance Test Suite', () => {
           }
 
           if (message.id?.startsWith('load-')) {
-            const operationIndex = parseInt(message.id.split('-')[1]);
-            const operationStartTime = parseInt(message.id.split('-')[2]);
+            const operationIndex = parseInt(message.id.spltest('-')[1]);
+            const operationStartTime = parseInt(message.id.spltest('-')[2]);
             const operationEndTime = Date.now();
             const operationTime = operationEndTime - operationStartTime;
 

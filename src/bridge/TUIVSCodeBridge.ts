@@ -114,6 +114,28 @@ export interface AuthRequestPayload {
   token: string;
 }
 
+// Return type interfaces for helper methods
+interface CodePreviewResult {
+  preview: string;
+  language: string;
+  context: CodeContext;
+}
+
+interface CodeAnalysisResult {
+  analysis: string;
+  language: string;
+  complexity: number;
+  issues: string[];
+  context: CodeContext;
+}
+
+interface CodeExplanationResult {
+  explanation: string;
+  language: string;
+  concepts: string[];
+  context: CodeContext;
+}
+
 // Discriminated union type for type-safe bridge commands
 export type BridgeInternalCommand =
   | {
@@ -206,6 +228,22 @@ interface BridgeInternalResponse {
   error?: string;
   timestamp: number;
 }
+
+// Union type for all possible WebSocket messages
+type BridgeMessage = BridgeInternalResponse | {
+  type: 'auth_challenge';
+  data: {
+    connectionId: string;
+    serverVersion: string;
+    authMethods: string[];
+    message: string;
+  };
+} | {
+  id: string;
+  success: boolean;
+  error: string;
+  timestamp: number;
+};
 
 export interface WorkspaceInfo {
   rootPath: string | undefined;
@@ -906,18 +944,20 @@ export class TUIVSCodeBridge {
         contextProvided: !!context
       });
 
+      const responseData: CommandExecutionResponseData = {
+        result: result as string | number | boolean | object | null,
+        metadata: {
+          executionTime,
+          safetyLevel,
+          commandName,
+          timestamp: Date.now()
+        }
+      };
+
       return {
         id: command.id,
         success: true,
-        data: {
-          result,
-          metadata: {
-            executionTime,
-            safetyLevel,
-            commandName,
-            timestamp: Date.now()
-          }
-        },
+        data: responseData,
         timestamp: Date.now()
       };
 
@@ -994,7 +1034,7 @@ export class TUIVSCodeBridge {
     return readOnlyCommands;
   }
 
-  private async executeCodePreview(args: any, context: any): Promise<any> {
+  private async executeCodePreview(args: (string | number | boolean | object)[] | undefined, context: CodeContext | undefined): Promise<CodePreviewResult> {
     // Implement enhanced code preview with TUI context
     const activeEditor = vscode.window.activeTextEditor;
     if (!activeEditor) {
@@ -1012,7 +1052,7 @@ export class TUIVSCodeBridge {
     };
   }
 
-  private async executeCodeAnalysis(args: any, context: any): Promise<any> {
+  private async executeCodeAnalysis(args: (string | number | boolean | object)[] | undefined, context: CodeContext | undefined): Promise<CodeAnalysisResult> {
     // Implement enhanced code analysis with TUI context
     const activeEditor = vscode.window.activeTextEditor;
     if (!activeEditor) {
@@ -1029,7 +1069,7 @@ export class TUIVSCodeBridge {
     };
   }
 
-  private async executeCodeExplanation(args: any, context: any): Promise<any> {
+  private async executeCodeExplanation(args: (string | number | boolean | object)[] | undefined, context: CodeContext | undefined): Promise<CodeExplanationResult> {
     // Implement enhanced code explanation with TUI context
     const activeEditor = vscode.window.activeTextEditor;
     if (!activeEditor) {
@@ -1337,7 +1377,7 @@ export class TUIVSCodeBridge {
     }
   }
 
-  private sendMessage(connectionId: string, message: any): void {
+  private sendMessage(connectionId: string, message: BridgeMessage): void {
     const connection = this.connections.get(connectionId);
     if (connection && connection.socket.readyState === WebSocket.OPEN) {
       connection.socket.send(JSON.stringify(message));

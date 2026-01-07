@@ -10,12 +10,16 @@ import { ConfigurationManager } from '../../config/ConfigurationManager';
 import { SafetyGuard } from '../../safety/SafetyGuard';
 import {
   BridgeMessage,
-  TUICommand,
   VSCodeResponse,
   HandshakeMessage,
   WorkspaceRequest,
   BridgeConfig
 } from '../../bridge/types';
+import { BridgeInternalCommand } from '../../bridge/TUIVSCodeBridge';
+import {
+  createWorkspaceQueryCommand,
+  createFileOperationCommand
+} from '../utils/bridge-test-helpers';
 import { AutomatusConfig } from '../../types';
 
 suite('TUI-VSCode Communication Flow Integration Tests', () => {
@@ -139,18 +143,8 @@ suite('TUI-VSCode Communication Flow Integration Tests', () => {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Step 4: Execute a safe command
-    const readFileCommand: TUICommand = {
-      id: 'cmd-001',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'integration-test-session',
-      payload: {
-        command: 'readFile',
-        args: { path: '/test/path.txt' },
-        safetyLevel: 'read_only'
-      }
-    };
+    const readFileCommand = createFileOperationCommand('read', '/test/path.txt');
+    readFileCommand.id = 'cmd-001';
 
     wsClient.send(JSON.stringify(readFileCommand));
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -199,16 +193,12 @@ suite('TUI-VSCode Communication Flow Integration Tests', () => {
     });
 
     // Step 1: Send invalid command to trigger error
-    const invalidCommand: TUICommand = {
+    const invalidCommand: BridgeInternalCommand = {
       id: 'invalid-001',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'error-test-session',
+      type: 'workspace_query',
+      timestamp: Date.now(),
       payload: {
-        command: 'nonExistentCommand',
-        args: {},
-        safetyLevel: 'read_only'
+        queryType: 'nonExistent' as any  // Invalid query type
       }
     };
 
@@ -216,18 +206,8 @@ suite('TUI-VSCode Communication Flow Integration Tests', () => {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Step 2: Send valid command to verify recovery
-    const validCommand: TUICommand = {
-      id: 'valid-001',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'error-test-session',
-      payload: {
-        command: 'getWorkspaceFiles',
-        args: {},
-        safetyLevel: 'read_only'
-      }
-    };
+    const validCommand = createWorkspaceQueryCommand();
+    validCommand.id = 'valid-001';
 
     wsClient.send(JSON.stringify(validCommand));
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -269,18 +249,8 @@ suite('TUI-VSCode Communication Flow Integration Tests', () => {
     const startTime = Date.now();
 
     for (let i = 0; i < commandCount; i++) {
-      const command: TUICommand = {
-        id: `perf-${i}`,
-        type: 'COMMAND_EXECUTE',
-        timestamp: new Date().toISOString(),
-        source: 'TUI',
-        sessionId: 'perf-test-session',
-        payload: {
-          command: 'getWorkspaceFiles',
-          args: {},
-          safetyLevel: 'read_only'
-        }
-      };
+      const command = createWorkspaceQueryCommand();
+      command.id = `perf-${i}`;
 
       commandTimestamps[command.id] = Date.now();
       wsClient.send(JSON.stringify(command));
@@ -326,18 +296,8 @@ suite('TUI-VSCode Communication Flow Integration Tests', () => {
     let reconnectionSuccessful = false;
 
     // Step 1: Verify initial connection works
-    const initialCommand: TUICommand = {
-      id: 'initial-001',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'resilience-test',
-      payload: {
-        command: 'getWorkspaceFiles',
-        args: {},
-        safetyLevel: 'read_only'
-      }
-    };
+    const initialCommand = createWorkspaceQueryCommand();
+    initialCommand.id = 'initial-001';
 
     wsClient.send(JSON.stringify(initialCommand));
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -360,18 +320,8 @@ suite('TUI-VSCode Communication Flow Integration Tests', () => {
     });
 
     // Step 4: Verify functionality after reconnection
-    const postReconnectCommand: TUICommand = {
-      id: 'post-reconnect-001',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'resilience-test-2',
-      payload: {
-        command: 'getWorkspaceFiles',
-        args: {},
-        safetyLevel: 'read_only'
-      }
-    };
+    const postReconnectCommand = createWorkspaceQueryCommand();
+    postReconnectCommand.id = 'post-reconnect-001';
 
     wsClient.send(JSON.stringify(postReconnectCommand));
     await new Promise(resolve => setTimeout(resolve, 1000));

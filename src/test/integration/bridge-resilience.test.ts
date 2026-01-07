@@ -9,9 +9,13 @@ import { ConfigurationManager } from '../../config/ConfigurationManager';
 import { SafetyGuard } from '../../safety/SafetyGuard';
 import {
   BridgeMessage,
-  TUICommand,
   BridgeConfig
 } from '../../bridge/types';
+import { BridgeInternalCommand } from '../../bridge/TUIVSCodeBridge';
+import {
+  createWorkspaceQueryCommand,
+  createFileOperationCommand
+} from '../utils/bridge-test-helpers';
 import { AutomatusConfig } from '../../types';
 
 suite('Bridge Resilience Tests', () => {
@@ -74,18 +78,7 @@ suite('Bridge Resilience Tests', () => {
     });
 
     // Send initial command
-    const initialCommand: TUICommand = {
-      id: 'test-initial',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'test-session-queue',
-      payload: {
-        command: 'getWorkspaceFiles',
-        args: {},
-        safetyLevel: 'read_only'
-      }
-    };
+    const initialCommand = createWorkspaceQueryCommand();
 
     client.send(JSON.stringify(initialCommand));
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -145,16 +138,13 @@ suite('Bridge Resilience Tests', () => {
 
     // Send commands that will fail
     for (let i = 0; i < 6; i++) {
-      const failingCommand: TUICommand = {
+      // Create a failing command using workspace query but with invalid payload
+      const failingCommand: BridgeInternalCommand = {
         id: `test-fail-${i}`,
-        type: 'COMMAND_EXECUTE',
-        timestamp: new Date().toISOString(),
-        source: 'TUI',
-        sessionId: 'test-session-cb',
+        type: 'workspace_query',
+        timestamp: Date.now(),
         payload: {
-          command: 'nonExistentCommand',
-          args: {},
-          safetyLevel: 'read_only'
+          queryType: 'nonExistent' as any  // Invalid query type to trigger error
         }
       };
 
@@ -227,18 +217,8 @@ suite('Bridge Resilience Tests', () => {
 
     // Execute some commands to generate metrics
     for (let i = 0; i < 3; i++) {
-      const command: TUICommand = {
-        id: `test-metrics-${i}`,
-        type: 'COMMAND_EXECUTE',
-        timestamp: new Date().toISOString(),
-        source: 'TUI',
-        sessionId: 'test-session-metrics',
-        payload: {
-          command: 'getWorkspaceFiles',
-          args: {},
-          safetyLevel: 'read_only'
-        }
-      };
+      const command = createWorkspaceQueryCommand();
+      command.id = `test-metrics-${i}`;
 
       client.send(JSON.stringify(command));
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -293,18 +273,8 @@ suite('Bridge Resilience Tests', () => {
 
     // Send many messages quickly to trigger rate limiting
     for (let i = 0; i < 150; i++) { // More than the 100/minute limit
-      const command: TUICommand = {
-        id: `test-rate-${i}`,
-        type: 'COMMAND_EXECUTE',
-        timestamp: new Date().toISOString(),
-        source: 'TUI',
-        sessionId: 'test-session-rate',
-        payload: {
-          command: 'getWorkspaceFiles',
-          args: {},
-          safetyLevel: 'read_only'
-        }
-      };
+      const command = createWorkspaceQueryCommand();
+      command.id = `test-rate-${i}`;
 
       client.send(JSON.stringify(command));
     }

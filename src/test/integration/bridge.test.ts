@@ -12,9 +12,13 @@ import {
   BridgeMessage,
   HandshakeMessage,
   WorkspaceRequest,
-  TUICommand,
   BridgeConfig
 } from '../../bridge/types';
+import { BridgeInternalCommand } from '../../bridge/TUIVSCodeBridge';
+import {
+  createWorkspaceQueryCommand,
+  createFileOperationCommand
+} from '../utils/bridge-test-helpers';
 import { AutomatusConfig } from '../../types';
 
 suite('Bridge Integration Tests', () => {
@@ -208,18 +212,8 @@ suite('Bridge Integration Tests', () => {
       setTimeout(() => reject(new Error('Connection timeout')), 3000);
     });
 
-    const commandMessage: TUICommand = {
-      id: 'test-command-1',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'test-session-1',
-      payload: {
-        command: 'getWorkspaceFiles',
-        args: { pattern: '**/*.ts' },
-        safetyLevel: 'read_only'
-      }
-    };
+    const commandMessage = createWorkspaceQueryCommand();
+    commandMessage.id = 'test-command-1';
 
     let responseReceived = false;
     let commandResponse: any;
@@ -263,17 +257,16 @@ suite('Bridge Integration Tests', () => {
       setTimeout(() => reject(new Error('Connection timeout')), 3000);
     });
 
-    const unauthorizedCommand: TUICommand = {
+    // Create an invalid command to trigger safety enforcement
+    const unauthorizedCommand: BridgeInternalCommand = {
       id: 'test-command-2',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'test-session-1',
+      type: 'file_operation',
+      timestamp: Date.now(),
       payload: {
-        command: 'nonExistentCommand',
-        args: {},
-        safetyLevel: 'expanded_access'
-      }
+        operation: 'delete' as const,
+        path: '/system/critical/file'  // Unauthorized path
+      },
+      requiresApproval: true
     };
 
     let errorReceived = false;
@@ -344,18 +337,8 @@ suite('Bridge Integration Tests', () => {
       setTimeout(() => reject(new Error('Connection timeout')), 3000);
     });
 
-    const readCommand: TUICommand = {
-      id: 'test-metadata-1',
-      type: 'COMMAND_EXECUTE',
-      timestamp: new Date().toISOString(),
-      source: 'TUI',
-      sessionId: 'test-session-1',
-      payload: {
-        command: 'getWorkspaceFiles',
-        args: {},
-        safetyLevel: 'read_only'
-      }
-    };
+    const readCommand = createWorkspaceQueryCommand();
+    readCommand.id = 'test-metadata-1';
 
     let responseReceived = false;
     let commandResponse: any;

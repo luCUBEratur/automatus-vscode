@@ -8,10 +8,13 @@ import { BridgeServer } from '../../bridge/BridgeServer';
 import { ConfigurationManager } from '../../config/ConfigurationManager';
 import { SafetyGuard } from '../../safety/SafetyGuard';
 import {
-  TUICommand,
   VSCodeResponse,
   BridgeConfig
 } from '../../bridge/types';
+import { BridgeInternalCommand } from '../../bridge/TUIVSCodeBridge';
+import {
+  createWorkspaceQueryCommand
+} from '../utils/bridge-test-helpers';
 import { AutomatusConfig } from '../../types';
 
 interface PerformanceMetrics {
@@ -93,18 +96,8 @@ suite('Bridge Performance Benchmarks', () => {
 
     // Warm up with a few commands
     for (let i = 0; i < 3; i++) {
-      const warmupCommand: TUICommand = {
-        id: `warmup-${i}`,
-        type: 'COMMAND_EXECUTE',
-        timestamp: new Date().toISOString(),
-        source: 'TUI',
-        sessionId: 'warmup',
-        payload: {
-          command: 'getWorkspaceFiles',
-          args: {},
-          safetyLevel: 'read_only'
-        }
-      };
+      const warmupCommand = createWorkspaceQueryCommand();
+      warmupCommand.id = `warmup-${i}`;
       client.send(JSON.stringify(warmupCommand));
     }
 
@@ -114,18 +107,8 @@ suite('Bridge Performance Benchmarks', () => {
     for (let i = 0; i < 5; i++) {
       const startTime = Date.now();
 
-      const command: TUICommand = {
-        id: `latency-${i}`,
-        type: 'COMMAND_EXECUTE',
-        timestamp: new Date().toISOString(),
-        source: 'TUI',
-        sessionId: 'latency-test',
-        payload: {
-          command: 'getWorkspaceFiles',
-          args: {},
-          safetyLevel: 'read_only'
-        }
-      };
+      const command = createWorkspaceQueryCommand();
+      command.id = `latency-${i}`;
 
       client.send(JSON.stringify(command));
 
@@ -188,18 +171,8 @@ suite('Bridge Performance Benchmarks', () => {
     console.log(`Starting high throughput test with ${totalCommands} commands...`);
 
     for (let i = 0; i < totalCommands; i++) {
-      const command: TUICommand = {
-        id: `stress-${i}`,
-        type: 'COMMAND_EXECUTE',
-        timestamp: new Date().toISOString(),
-        source: 'TUI',
-        sessionId: 'stress-test',
-        payload: {
-          command: 'getWorkspaceFiles',
-          args: {},
-          safetyLevel: 'read_only'
-        }
-      };
+      const command = createWorkspaceQueryCommand();
+      command.id = `stress-${i}`;
 
       commandTimestamps[command.id] = Date.now();
       client.send(JSON.stringify(command));
@@ -287,18 +260,8 @@ suite('Bridge Performance Benchmarks', () => {
       const client = clients[clientIndex];
 
       for (let cmdIndex = 0; cmdIndex < commandsPerClient; cmdIndex++) {
-        const command: TUICommand = {
-          id: `client-${clientIndex}-cmd-${cmdIndex}`,
-          type: 'COMMAND_EXECUTE',
-          timestamp: new Date().toISOString(),
-          source: 'TUI',
-          sessionId: `concurrent-client-${clientIndex}`,
-          payload: {
-            command: 'getWorkspaceFiles',
-            args: {},
-            safetyLevel: 'read_only'
-          }
-        };
+        const command = createWorkspaceQueryCommand();
+        command.id = `client-${clientIndex}-cmd-${cmdIndex}`;
 
         client.send(JSON.stringify(command));
         await new Promise(resolve => setTimeout(resolve, 20)); // Small delay
@@ -371,18 +334,8 @@ suite('Bridge Performance Benchmarks', () => {
 
     const sendLoop = async () => {
       while (Date.now() - startTime < testDuration) {
-        const command: TUICommand = {
-          id: `memory-${commandsSent}`,
-          type: 'COMMAND_EXECUTE',
-          timestamp: new Date().toISOString(),
-          source: 'TUI',
-          sessionId: 'memory-test',
-          payload: {
-            command: 'getWorkspaceFiles',
-            args: {},
-            safetyLevel: 'read_only'
-          }
-        };
+        const command = createWorkspaceQueryCommand();
+        command.id = `memory-${commandsSent}`;
 
         client.send(JSON.stringify(command));
         commandsSent++;
