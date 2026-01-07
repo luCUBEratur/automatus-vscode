@@ -56,8 +56,7 @@ describe('Bridge Type Safety', () => {
         context: {
           currentFile: '/test/file.ts',
           selectedText: 'test',
-          cursorPosition: { line: 0, character: 0 },
-          projectRoot: '/test'
+          cursorPosition: { line: 0, character: 0 }
         }
       };
 

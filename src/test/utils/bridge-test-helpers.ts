@@ -1,5 +1,6 @@
 // Test utilities for TUI Bridge - provides backwards compatibility for legacy test format
 import { TUICommand } from '../../bridge/types';
+import { BridgeInternalCommand } from '../../bridge/TUIVSCodeBridge';
 
 // Legacy command format (for backwards compatibility in tests)
 export interface LegacyTestCommand {
@@ -51,8 +52,18 @@ export function createTUICommand(legacy: LegacyTestCommand): TUICommand {
   };
 }
 
-// Helper for auth commands
-export function createAuthCommand(token: string): TUICommand {
+// Helper for auth commands (new internal format)
+export function createAuthCommand(token: string): BridgeInternalCommand {
+  return {
+    id: `auth-${Date.now()}`,
+    type: 'auth_request',
+    payload: { token },
+    timestamp: Date.now()
+  };
+}
+
+// Helper for auth commands (legacy TUICommand format)
+export function createAuthCommandLegacy(token: string): TUICommand {
   return createTUICommand({
     id: `auth-${Date.now()}`,
     type: 'auth_request',
@@ -61,8 +72,18 @@ export function createAuthCommand(token: string): TUICommand {
   });
 }
 
-// Helper for workspace query commands
-export function createWorkspaceQueryCommand(): TUICommand {
+// Helper for workspace query commands (new internal format)
+export function createWorkspaceQueryCommand(): BridgeInternalCommand {
+  return {
+    id: `workspace-${Date.now()}`,
+    type: 'workspace_query',
+    payload: {},
+    timestamp: Date.now()
+  };
+}
+
+// Helper for workspace query commands (legacy TUICommand format)
+export function createWorkspaceQueryCommandLegacy(): TUICommand {
   return createTUICommand({
     id: `workspace-${Date.now()}`,
     type: 'workspace_query',
@@ -71,8 +92,18 @@ export function createWorkspaceQueryCommand(): TUICommand {
   });
 }
 
-// Helper for context request commands
-export function createContextRequestCommand(contextType: string): TUICommand {
+// Helper for context request commands (new internal format)
+export function createContextRequestCommand(contextType: 'active_editor' | 'selection' | 'project_structure'): BridgeInternalCommand {
+  return {
+    id: `context-${Date.now()}`,
+    type: 'context_request',
+    payload: { contextType },
+    timestamp: Date.now()
+  };
+}
+
+// Helper for context request commands (legacy TUICommand format)
+export function createContextRequestCommandLegacy(contextType: string): TUICommand {
   return createTUICommand({
     id: `context-${Date.now()}`,
     type: 'context_request',
@@ -81,8 +112,19 @@ export function createContextRequestCommand(contextType: string): TUICommand {
   });
 }
 
-// Helper for file operation commands
-export function createFileOperationCommand(operation: string, path: string, content?: string): TUICommand {
+// Helper for file operation commands (new internal format)
+export function createFileOperationCommand(operation: 'read' | 'create' | 'modify' | 'delete', path: string, content?: string): BridgeInternalCommand {
+  return {
+    id: `file-${Date.now()}`,
+    type: 'file_operation',
+    payload: { operation, path, content },
+    timestamp: Date.now(),
+    requiresApproval: true
+  };
+}
+
+// Helper for file operation commands (legacy TUICommand format)
+export function createFileOperationCommandLegacy(operation: string, path: string, content?: string): TUICommand {
   return createTUICommand({
     id: `file-${Date.now()}`,
     type: 'file_operation',

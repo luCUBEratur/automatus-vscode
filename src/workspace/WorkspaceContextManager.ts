@@ -280,11 +280,14 @@ export class WorkspaceContextManager implements IWorkspaceContextManager {
           const repo = this.gitExtension.repositories[0];
 
           repo.state.onDidChange(() => {
-            this.queueUpdate({
-              type: 'git_change',
-              timestamp: Date.now(),
-              data: this.getGitStatus()
-            });
+            const gitStatus = this.getGitStatus();
+            if (gitStatus) {
+              this.queueUpdate({
+                type: 'git_change',
+                timestamp: Date.now(),
+                data: gitStatus as GitChangeData
+              });
+            }
           });
         }
       }

@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import WebSocket from 'ws';
-import { TUIVSCodeBridge, WorkspaceInfo } from '../../bridge/TUIVSCodeBridge';
+import { TUIVSCodeBridge, WorkspaceInfo, BridgeInternalCommand } from '../../bridge/TUIVSCodeBridge';
 import { TUICommand, VSCodeResponse } from '../../bridge/types';
 import { BridgeServer, BridgeMetrics, BridgeHealth } from '../../bridge/BridgeServer';
 import { ConfigurationManager } from '../../config/ConfigurationManager';
@@ -138,7 +138,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
             authChallengeReceived = true;
 
             // Send auth request
-            const authRequest: TUICommand = {
+            const authRequest: BridgeInternalCommand = {
               id: 'auth-test',
               type: 'auth_request',
               payload: { token: 'test-token' },
@@ -185,7 +185,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
           const message = JSON.parse(data.toString());
 
           if (message.type === 'auth_challenge') {
-            const authRequest: TUICommand = {
+            const authRequest: BridgeInternalCommand = {
               id: 'auth-test',
               type: 'auth_request',
               payload: { token: 'test-token' },
@@ -198,7 +198,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
             authenticated = true;
 
             // Send workspace query
-            const workspaceQuery: TUICommand = {
+            const workspaceQuery: BridgeInternalCommand = {
               id: 'workspace-test',
               type: 'workspace_query',
               payload: {},
@@ -249,7 +249,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
           const message = JSON.parse(data.toString());
 
           if (message.type === 'auth_challenge') {
-            const authRequest: TUICommand = {
+            const authRequest: BridgeInternalCommand = {
               id: 'auth-test',
               type: 'auth_request',
               payload: { token: 'test-token' },
@@ -262,7 +262,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
             authenticated = true;
 
             // Send context request
-            const contextRequest: TUICommand = {
+            const contextRequest: BridgeInternalCommand = {
               id: 'context-test',
               type: 'context_request',
               payload: { contextType: 'active_editor' },
@@ -323,7 +323,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
           const message = JSON.parse(data.toString());
 
           if (message.type === 'auth_challenge') {
-            const authRequest: TUICommand = {
+            const authRequest: BridgeInternalCommand = {
               id: 'auth-test',
               type: 'auth_request',
               payload: { token: 'test-token' },
@@ -336,7 +336,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
             authenticated = true;
 
             // Try to perform a write operation (should be rejected in phase 1)
-            const fileOperation: TUICommand = {
+            const fileOperation: BridgeInternalCommand = {
               id: 'write-test',
               type: 'file_operation',
               payload: {
@@ -597,7 +597,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
             case 1: // Auth challenge
               if (message.type === 'auth_challenge') {
                 step = 2;
-                const authRequest: TUICommand = {
+                const authRequest: BridgeInternalCommand = {
                   id: 'auth-test',
                   type: 'auth_request',
                   payload: { token: 'test-token' },
@@ -610,7 +610,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
             case 2: // Auth response
               if (message.payload?.success) {
                 step = 3;
-                const workspaceQuery: TUICommand = {
+                const workspaceQuery: BridgeInternalCommand = {
                   id: 'workspace-test',
                   type: 'workspace_query',
                   payload: {},
@@ -623,7 +623,7 @@ suite('TUI-VSCode Bridge Test Suite', () => {
             case 3: // Workspace response
               if (message.id === 'workspace-test' && message.success) {
                 step = 4;
-                const contextRequest: TUICommand = {
+                const contextRequest: BridgeInternalCommand = {
                   id: 'context-test',
                   type: 'context_request',
                   payload: { contextType: 'active_editor' },

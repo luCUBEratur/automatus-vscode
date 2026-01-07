@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import WebSocket from 'ws';
-import { TUIVSCodeBridge } from '../../bridge/TUIVSCodeBridge';
+import { TUIVSCodeBridge, BridgeInternalCommand, AuthRequestPayload, WorkspaceQueryPayload } from '../../bridge/TUIVSCodeBridge';
 import { TUICommand } from '../../bridge/types';
 import { BridgeServer } from '../../bridge/BridgeServer';
 import { ConfigurationManager } from '../../config/ConfigurationManager';
@@ -89,7 +89,7 @@ suite('Bridge Performance Test Suite', () => {
           const message = JSON.parse(data.toString());
 
           if (message.type === 'auth_challenge' && !authenticated) {
-            const authRequest: TUICommand = {
+            const authRequest: BridgeInternalCommand = {
               id: 'auth-test',
               type: 'auth_request',
               payload: { token: 'test-token' },
@@ -103,7 +103,7 @@ suite('Bridge Performance Test Suite', () => {
 
             // Start rapid fire of workspace queries
             for (let i = 0; i < totalMessages; i++) {
-              const workspaceQuery: TUICommand = {
+              const workspaceQuery: BridgeInternalCommand = {
                 id: `workspace-${i}`,
                 type: 'workspace_query',
                 payload: {},
@@ -172,7 +172,7 @@ suite('Bridge Performance Test Suite', () => {
           const message = JSON.parse(data.toString());
 
           if (message.type === 'auth_challenge' && !authenticated) {
-            const authRequest: TUICommand = {
+            const authRequest: BridgeInternalCommand = {
               id: 'auth-test',
               type: 'auth_request',
               payload: { token: 'test-token' },
@@ -186,7 +186,7 @@ suite('Bridge Performance Test Suite', () => {
 
             // Send concurrent context requests
             for (let i = 0; i < totalMessages; i++) {
-              const contextRequest: TUICommand = {
+              const contextRequest: BridgeInternalCommand = {
                 id: `context-${i}`,
                 type: 'context_request',
                 payload: { contextType: 'active_editor' },
@@ -253,7 +253,7 @@ suite('Bridge Performance Test Suite', () => {
           const message = JSON.parse(data.toString());
 
           if (message.type === 'auth_challenge' && !authenticated) {
-            const authRequest: TUICommand = {
+            const authRequest: BridgeInternalCommand = {
               id: 'auth-test',
               type: 'auth_request',
               payload: { token: 'test-token' },
@@ -307,7 +307,7 @@ suite('Bridge Performance Test Suite', () => {
         function continueOperations() {
           // Alternate between different operation types
           const operationType = operationCount % 3;
-          let command: TUICommand;
+          let command: BridgeInternalCommand;
 
           switch (operationType) {
             case 0:
@@ -432,7 +432,7 @@ suite('Bridge Performance Test Suite', () => {
           const message = JSON.parse(data.toString());
 
           if (message.type === 'auth_challenge' && !authenticated) {
-            const authRequest: TUICommand = {
+            const authRequest: BridgeInternalCommand = {
               id: 'auth-test',
               type: 'auth_request',
               payload: { token: 'test-token' },
@@ -482,7 +482,7 @@ suite('Bridge Performance Test Suite', () => {
           for (let i = 0; i < targetOperations; i++) {
             setTimeout(() => {
               const operationStartTime = Date.now();
-              const command: TUICommand = {
+              const command: BridgeInternalCommand = {
                 id: `load-${i}-${operationStartTime}`,
                 type: 'workspace_query',
                 payload: {},

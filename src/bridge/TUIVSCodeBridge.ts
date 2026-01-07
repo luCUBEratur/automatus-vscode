@@ -115,7 +115,7 @@ export interface AuthRequestPayload {
 }
 
 // Discriminated union type for type-safe bridge commands
-type BridgeInternalCommand =
+export type BridgeInternalCommand =
   | {
       id: string;
       type: 'workspace_query';
