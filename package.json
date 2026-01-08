@@ -357,6 +357,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "mocha": "^10.8.2",
+    "ts-node": "^10.9.2",
     "@types/node": "22.x",
     "@types/uuid": "^9.0.7",
     "@types/vscode": "^1.74.0",
