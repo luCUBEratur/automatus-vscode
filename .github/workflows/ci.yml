@@ -97,7 +97,7 @@ jobs:
       - name: Test VSCode extension
         uses: GabrielBB/xvfb-action@v1.6
         with:
-          run: npm run test:vscode
+          run: npm run test
         if: matrix.os == 'ubuntu-latest'
 
       - name: Upload test results
