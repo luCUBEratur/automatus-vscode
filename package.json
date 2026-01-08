@@ -340,6 +340,9 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
+    "test:unit": "npx mocha \"out/test/unit/**/*.test.js\" --timeout 10000",
+    "test:integration": "npx mocha \"out/test/integration/**/*.test.js\" --timeout 20000",
+    "test:vscode": "vscode-test",
     "test": "vscode-test",
     "package": "vsce package",
     "publish": "vsce publish"
@@ -353,6 +356,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
+    "mocha": "^10.8.2",
     "@types/node": "22.x",
     "@types/uuid": "^9.0.7",
     "@types/vscode": "^1.74.0",
