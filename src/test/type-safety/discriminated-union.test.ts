@@ -63,11 +63,11 @@ type BridgeInternalCommand =
 /**
  * Tests specifically for the discriminated union implementation
  */
-suite('Discriminated Union Type Safety', () => {
+describe('Discriminated Union Type Safety', () => {
 
-  suite('Type Construction and Validation', () => {
+  describe('Type Construction and Validation', () => {
 
-    test('should construct workspace query commands with proper types', () => {
+    it('should construct workspace query commands with proper types', () => {
       const command: BridgeInternalCommand = {
         id: 'ws-query-1',
         type: 'workspace_query',
@@ -85,7 +85,7 @@ suite('Discriminated Union Type Safety', () => {
       assert.equal(command.payload.includeConfigDetails, true);
     });
 
-    test('should construct file operation commands with proper types', () => {
+    it('should construct file operation commands with proper types', () => {
       const command: BridgeInternalCommand = {
         id: 'file-op-1',
         type: 'file_operation',
@@ -105,7 +105,7 @@ suite('Discriminated Union Type Safety', () => {
       assert.ok(command.payload.content?.includes('export'));
     });
 
-    test('should construct command execution commands with proper types', () => {
+    it('should construct command execution commands with proper types', () => {
       const command: BridgeInternalCommand = {
         id: 'cmd-exec-1',
         type: 'command_execution',
@@ -125,7 +125,7 @@ suite('Discriminated Union Type Safety', () => {
       assert.equal(command.payload.args.length, 2);
     });
 
-    test('should construct context request commands with proper types', () => {
+    it('should construct context request commands with proper types', () => {
       const command: BridgeInternalCommand = {
         id: 'ctx-req-1',
         type: 'context_request',
@@ -139,7 +139,7 @@ suite('Discriminated Union Type Safety', () => {
       assert.equal(command.payload.contextType, 'active_editor');
     });
 
-    test('should construct auth request commands with proper types', () => {
+    it('should construct auth request commands with proper types', () => {
       const command: BridgeInternalCommand = {
         id: 'auth-1',
         type: 'auth_request',
@@ -154,9 +154,9 @@ suite('Discriminated Union Type Safety', () => {
     });
   });
 
-  suite('Type Narrowing in Switch Statements', () => {
+  describe('Type Narrowing in Switch Statements', () => {
 
-    test('should properly narrow types for each command variant', () => {
+    it('should properly narrow types for each command variant', () => {
       const commands: BridgeInternalCommand[] = [
         {
           id: 'test-1',
@@ -240,9 +240,9 @@ suite('Discriminated Union Type Safety', () => {
     });
   });
 
-  suite('Extract Utility Type Validation', () => {
+  describe('Extract Utility Type Validation', () => {
 
-    test('should extract specific command types correctly', () => {
+    it('should extract specific command types correctly', () => {
       // Verify Extract utility type works as expected
       type WorkspaceQueryCommand = Extract<BridgeInternalCommand, { type: 'workspace_query' }>;
       type FileOperationCommand = Extract<BridgeInternalCommand, { type: 'file_operation' }>;
@@ -276,9 +276,9 @@ suite('Discriminated Union Type Safety', () => {
     });
   });
 
-  suite('Type Safety Edge Cases', () => {
+  describe('Type Safety Edge Cases', () => {
 
-    test('should handle optional properties correctly', () => {
+    it('should handle optional properties correctly', () => {
       const minimalWorkspaceQuery: BridgeInternalCommand = {
         id: 'minimal-1',
         type: 'workspace_query',
@@ -290,7 +290,7 @@ suite('Discriminated Union Type Safety', () => {
       assert.equal(Object.keys(minimalWorkspaceQuery.payload).length, 0);
     });
 
-    test('should require mandatory properties', () => {
+    it('should require mandatory properties', () => {
       // These would cause TypeScript compilation errors:
 
       // Missing required 'operation' property
@@ -312,7 +312,7 @@ suite('Discriminated Union Type Safety', () => {
       assert.ok(true, 'Required properties are enforced by TypeScript');
     });
 
-    test('should validate enum values', () => {
+    it('should validate enum values', () => {
       const validOperations = ['read', 'write', 'delete', 'create'];
       const validSafetyLevels = ['read_only', 'controlled_write', 'expanded_access'];
       const validContextTypes = ['active_editor', 'selection', 'workspace', 'project'];
@@ -324,9 +324,9 @@ suite('Discriminated Union Type Safety', () => {
     });
   });
 
-  suite('Response Type Validation', () => {
+  describe('Response Type Validation', () => {
 
-    test('should validate response data types match command types', () => {
+    it('should validate response data types match command types', () => {
       // Response types should correlate with command types
       const responses = [
         {

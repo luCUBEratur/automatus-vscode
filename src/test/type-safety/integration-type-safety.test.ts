@@ -9,9 +9,9 @@ import * as assert from 'assert';
  * These tests verify that the type safety improvements work correctly
  * in realistic integration scenarios and provide the claimed benefits.
  */
-suite('Integration Type Safety Tests', () => {
+describe('Integration Type Safety Tests', () => {
 
-  suite('Mock Bridge Handler Type Safety', () => {
+  describe('Mock Bridge Handler Type Safety', () => {
 
     // Mock function that simulates the improved bridge handlers
     function mockHandleCommand(command: any): any {
@@ -115,7 +115,7 @@ suite('Integration Type Safety Tests', () => {
       };
     }
 
-    test('should handle all command types with proper type inference', () => {
+    it('should handle all command types with proper type inference', () => {
       const commands = [
         {
           id: 'int-test-1',
@@ -185,9 +185,9 @@ suite('Integration Type Safety Tests', () => {
     });
   });
 
-  suite('Developer Experience Improvements', () => {
+  describe('Developer Experience Improvements', () => {
 
-    test('should provide IntelliSense support for payload properties', () => {
+    it('should provide IntelliSense support for payload properties', () => {
       // This test documents the improved developer experience
       // In a real IDE, developers would get autocomplete for these properties
 
@@ -216,7 +216,7 @@ suite('Integration Type Safety Tests', () => {
       assert.ok(fileCommand.payload.operation);
     });
 
-    test('should catch type mismatches at compile time', () => {
+    it('should catch type mismatches at compile time', () => {
       // These examples would cause TypeScript compilation errors:
 
       // Wrong payload for command type
@@ -241,9 +241,9 @@ suite('Integration Type Safety Tests', () => {
     });
   });
 
-  suite('Runtime Type Safety', () => {
+  describe('Runtime Type Safety', () => {
 
-    test('should maintain type safety during runtime operations', () => {
+    it('should maintain type safety during runtime operations', () => {
       // Simulate runtime command processing
       function processCommand(command: any) {
         // Type checking should happen here
@@ -332,9 +332,9 @@ suite('Integration Type Safety Tests', () => {
     });
   });
 
-  suite('Type Safety Performance Impact', () => {
+  describe('Type Safety Performance Impact', () => {
 
-    test('should not significantly impact runtime performance', () => {
+    it('should not significantly impact runtime performance', () => {
       const commands = Array.from({ length: 1000 }, (_, i) => ({
         id: `perf-test-${i}`,
         type: 'workspace_query',
@@ -361,9 +361,9 @@ suite('Integration Type Safety Tests', () => {
     });
   });
 
-  suite('Error Handling and Type Safety', () => {
+  describe('Error Handling and Type Safety', () => {
 
-    test('should provide type-safe error responses', () => {
+    it('should provide type-safe error responses', () => {
       function createErrorResponse(commandId: string, error: string) {
         return {
           id: commandId,
@@ -381,7 +381,7 @@ suite('Integration Type Safety Tests', () => {
       assert.ok(errorResponse.data);
     });
 
-    test('should handle missing or malformed payloads gracefully', () => {
+    it('should handle missing or malformed payloads gracefully', () => {
       function validateCommandPayload(command: any): boolean {
         try {
           if (!command || typeof command !== 'object') {return false;}
@@ -431,9 +431,9 @@ suite('Integration Type Safety Tests', () => {
  *
  * These tests specifically verify the claims made about type safety improvements.
  */
-suite('Type Safety Claims Verification', () => {
+describe('Type Safety Claims Verification', () => {
 
-  test('should verify discriminated union implementation', () => {
+  it('should verify discriminated union implementation', () => {
     // Claim: Implemented discriminated union for BridgeInternalCommand
     type TestUnion =
       | { type: 'A'; payload: { valueA: string } }
@@ -457,7 +457,7 @@ suite('Type Safety Claims Verification', () => {
     assert.equal(resultB, 42);
   });
 
-  test('should verify elimination of problematic any types', () => {
+  it('should verify elimination of problematic any types', () => {
     // Claim: Replaced critical any types with proper typed unions
 
     // Before: payload: any
@@ -467,7 +467,7 @@ suite('Type Safety Claims Verification', () => {
     assert.ok(true, 'Any types in critical interfaces have been replaced');
   });
 
-  test('should verify method signature improvements', () => {
+  it('should verify method signature improvements', () => {
     // Claim: Updated method signatures to use specific types
 
     // Example of improved method signature
@@ -487,7 +487,7 @@ suite('Type Safety Claims Verification', () => {
     assert.equal(result.workspaceInfo.enhanced, true);
   });
 
-  test('should verify compilation without errors', () => {
+  it('should verify compilation without errors', () => {
     // Claim: Code compiles without TypeScript errors
 
     // This test will only pass if the main source files compile successfully
